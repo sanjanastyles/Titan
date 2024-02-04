@@ -14,7 +14,7 @@ class CommonController {
         // Add additional routes here
         this.router.get("/allservice", this.handleAllService);
         this.router.get("/service/:serviceName", this.handleService);
-        // this.router.post("/forgotpassword", this.handleForgotPassword);
+        this.router.post("/forgotpassword", this.handleForgotPassword);
     }
 
     private handleContactForm = async (req: Request, res: Response): Promise<void> => {
@@ -48,7 +48,7 @@ class CommonController {
     private handleService = async (req: Request, res: Response): Promise<void> => {
         const { serviceName } = req.params;
         console.log("FFFFFFFFFFf", serviceName);
-        
+
         try {
             const service = await SERVICE_MODEL.findOne({ serviceName: serviceName.toLowerCase() });
             if (service) {
@@ -75,32 +75,30 @@ class CommonController {
             });
         }
     };
-    // Uncomment and modify the methods for additional routes as needed
-    /*
-  
-  
+
+
     private handleForgotPassword = async (req: Request, res: Response): Promise<void> => {
-      const { phonenumber, password } = req.body;
-    
-      try {
-        // Modify the code to use TypeScript for 'serviceman' model
-        // const user = await serviceman.findOne({ phoneNumber: phonenumber });
-    
-        if (!user) {
-          return res.status(404).json({ code: 404, msg: "User not found" });
+        const { phonenumber, password } = req.body;
+
+        try {
+            const user = await SERVICEMAN_SIGNUP_MODEL.findOne({ phoneNumber: phonenumber });
+
+            if (!user) {
+                res.status(404).json({ code: 404, msg: "User not found" });
+                return
+            }
+            // Modify the code to use TypeScript for 'serviceman' model
+            // await serviceman.updateOne(
+            //   { phoneNumber: phonenumber },
+            //   { $set: { password: password } }
+            // );
+
+            res.send({ code: 200, msg: "Phone Number Found" });
+        } catch (err) {
+            res.status(500).send({ msg: "Internal Server Error", code: 500, error: err });
         }
-        // Modify the code to use TypeScript for 'serviceman' model
-        // await serviceman.updateOne(
-        //   { phoneNumber: phonenumber },
-        //   { $set: { password: password } }
-        // );
-    
-        res.send({ code: 200, msg: "Password updated successfully" });
-      } catch (err) {
-        res.status(500).send({ msg: "Internal Server Error", code: 500, error: err });
-      }
     };
-    */
+
 
     public getRouter(): Router {
         return this.router;
