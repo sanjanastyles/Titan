@@ -47,7 +47,6 @@ class CommonController {
 
     private handleService = async (req: Request, res: Response): Promise<void> => {
         const { serviceName } = req.params;
-        console.log("FFFFFFFFFFf", serviceName);
 
         try {
             const service = await SERVICE_MODEL.findOne({ serviceName: serviceName.toLowerCase() });

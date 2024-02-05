@@ -45,6 +45,7 @@ class ServiceManController {
                 passcode,
                 password,
                 jobs,
+                signupType
             } = req.body;
 
             const existingUser = await SERVICEMAN_SIGNUP_MODEL.findOne({ email });
@@ -53,10 +54,8 @@ class ServiceManController {
                 return;
             }
 
-            // Generate a token based on passcode (assuming createToken is defined and works)
             const token = createToken(passcode);
 
-            // Create a new SERVICEMAN_SIGNUP_MODEL instance
             const newServiceMan = new SERVICEMAN_SIGNUP_MODEL({
                 firstName,
                 lastName,
@@ -66,14 +65,10 @@ class ServiceManController {
                 passcode,
                 password,
                 jobs,
-                isServiceman: true,
+                isServiceman: signupType,
                 token,
             });
-
-            // Save the new Serviceman to the database
             await newServiceMan.save();
-
-            // Update the associatedServiceman array in the Service model
             newServiceMan.jobs.forEach(async (e) => {
                 await SERVICE_MODEL.findOneAndUpdate(
                     { serviceName: e.toLowerCase() },
@@ -82,11 +77,8 @@ class ServiceManController {
                 );
             })
 
-
-            // Respond with success message and token
-            res.status(201).json({ code: 201, msg: 'Created Successfully', token });
+            res.status(201).json({ code: 201, msg: 'Created Successfully', token, _id: newServiceMan._id, isServiceman: newServiceMan.isServiceman });
         } catch (err) {
-            // Handle errors and respond with an error message
             res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
         }
     };
