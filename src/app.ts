@@ -4,6 +4,7 @@ import cors from 'cors';
 import dbInit from '../dbConnection';
 import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
+import CustomerController from '../routes/customers';
 
 class App {
   private readonly app: Application;
@@ -27,8 +28,8 @@ class App {
     this.app.use('/common', commonController.getRouter());
     this.app.use('/serviceman', serviceManController.getRouter());
     // Add additional controllers and routes as needed
-    // const customerController = new CustomerController();
-    // this.app.use('/customer', customerController.getRouter());
+    const customerController = new CustomerController();
+    this.app.use('/customer', customerController.getRouter());
   }
 
   private startServer(): void {
