@@ -110,21 +110,47 @@ class ServiceManController {
   };
 
   private handleSeeReviews = async (req: Request, res: Response) => {
-    // res.send({ KEY: "see_reviews", TOKEN: "token" });
-
     try {
       const { reviewerId, isServiceman } = req.body;
 
-      let response: any[];
-      if (isServiceman) {
-        response = await REVIEW_MODEL.find({
-          associatedServiceman: { $all: [reviewerId] },
+      let pipeline: any[] = [
+        {
+          $lookup: {
+            from: isServiceman ? "servicemen" : "customers", // Change to match your collection name
+            localField: isServiceman ? "associatedServiceman" : "reviewerId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: "$user" },
+        { $addFields: { "user.id": "$_id" } },
+        {
+          $project: {
+            _id: 0,
+            id: "$user.id",
+            name: "$user.name",
+            review: "$$ROOT",
+          },
+        },
+      ];
+
+      // if (isServiceman) {
+        pipeline.push({
+          $lookup: {
+            from: "services", // Change to match your service collection name
+            localField: "review.associatedJob",
+            foreignField: "_id",
+            as: "service",
+          },
         });
-      } else {
-        response = await REVIEW_MODEL.find({
-          reviewerId: { $all: [reviewerId] },
+        pipeline.push({ $unwind: "$service" });
+        pipeline.push({
+          $addFields: { "service.id": "$review.associatedJob" },
         });
-      }
+        pipeline.push({ $project: { "review.associatedJob": 0 } });
+      // }
+
+      const response = await REVIEW_MODEL.aggregate(pipeline);
 
       res.status(200).json({
         code: 200,
