@@ -1,7 +1,7 @@
-import { Document, Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 // import { IReview } from '../interface';
 
-const reviewSchema = new Schema<any>(
+const reviewSchema = new Schema(
   {
     quality: {
       type: String,
@@ -32,6 +32,6 @@ const reviewSchema = new Schema<any>(
   }
 );
 
-const Review = model<any>("Review", reviewSchema);
+const Review = model("Review", reviewSchema);
 
 export default Review;
