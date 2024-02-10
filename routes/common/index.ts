@@ -12,7 +12,7 @@ class CommonController {
     this.router.get('/service/:serviceName', this.handleService);
     this.router.post('/forgotpassword', this.handleForgotPassword);
     this.router.post('/contact', this.handleContactForm);
-    this.router.post('/history', this.ChandleHistory);
+    this.router.post('/booking', this.handleBooking);
   }
   private handleHistory = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -20,7 +20,10 @@ class CommonController {
       const { isServiceman, reviewerId } = req.query;
       if (isServiceman) {
         createHistory = await HISTROY_MODEL.find({
-          associatedServiceman: { $all: reviewerId },
+          $or: [
+            { associatedServiceman: { $all: reviewerId } },
+            { associatedCustomer: { $all: reviewerId } },
+          ],
         });
       } else {
         createHistory = await HISTROY_MODEL.find({
@@ -32,15 +35,34 @@ class CommonController {
       res.send({ msg: 'Something went wrong', code: 412, error: err });
     }
   };
-  private ChandleHistory = async (req: Request, res: Response): Promise<void> => {
+  private handleBooking = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { serviceName, price, associatedServiceman, associatedCustomer, address } = req.body;
-      const createHistory = new HISTROY_MODEL({
+      const {
         serviceName,
         price,
         associatedServiceman,
         associatedCustomer,
         address,
+        contactNumber,
+        // timeOfAppointment,
+        description,
+        customerName,
+        dateOfBooking,
+        dateOfAppointment,
+      } = req.body;
+      const createHistory = new HISTROY_MODEL({
+        serviceName,
+        price: parseInt(price),
+        associatedServiceman,
+        associatedCustomer,
+        address,
+        // timeOfAppointment,
+        customerName,
+        isActive: true,
+        contactNumber: parseInt(contactNumber),
+        description,
+        dateOfBooking,
+        dateOfAppointment,
       });
       await createHistory.save();
       res.status(200).json({ code: 200, msg: 'created', data: {} });
@@ -109,7 +131,6 @@ class CommonController {
         res.status(404).json({ code: 404, msg: 'User not found' });
         return;
       }
-      // Modify the code to use TypeScript for 'serviceman' model
       // await serviceman.updateOne(
       //   { phoneNumber: phonenumber },
       //   { $set: { password: password } }
