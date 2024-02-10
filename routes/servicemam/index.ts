@@ -116,7 +116,7 @@ class ServiceManController {
       let pipeline: any[] = [
         {
           $lookup: {
-            from: isServiceman ? "servicemen" : "customers", // Change to match your collection name
+            from: isServiceman ? "servicemen" : "customers", 
             localField: isServiceman ? "associatedServiceman" : "reviewerId",
             foreignField: "_id",
             as: "user",
@@ -137,7 +137,7 @@ class ServiceManController {
       // if (isServiceman) {
         pipeline.push({
           $lookup: {
-            from: "services", // Change to match your service collection name
+            from: "services", 
             localField: "review.associatedJob",
             foreignField: "_id",
             as: "service",
