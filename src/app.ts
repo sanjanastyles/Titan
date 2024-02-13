@@ -8,6 +8,7 @@ import dbInit from '../dbConnection';
 import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
 import CustomerController from '../routes/customers';
+import AdminController from '../routes/admin';
 class App {
   private readonly app: Application;
   private readonly server: http.Server;
@@ -33,10 +34,12 @@ class App {
   private initializeRoutes(): void {
     const commonController = new CommonController();
     const serviceManController = new ServiceManController();
+    const customerController = new CustomerController();
+    const adminController = new AdminController();
     this.app.use('/common', commonController.getRouter());
     this.app.use('/serviceman', serviceManController.getRouter());
-    const customerController = new CustomerController();
     this.app.use('/customer', customerController.getRouter());
+    this.app.use('/admin', adminController.getRouter());
   }
   private initializeWebSocket(): void {
     this.io.on('connection', (socket: Socket) => {
