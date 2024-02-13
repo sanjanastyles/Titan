@@ -40,8 +40,8 @@ class App {
   }
   private initializeWebSocket(): void {
     this.io.on('connection', (socket: Socket) => {
-      socket.on('disconnect', () => {
-      });
+      console.log('CONNECTED...');
+      socket.on('disconnect', () => {});
       socket.on('subscribe', (channel: string) => {
         socket.join(channel);
       });
@@ -50,7 +50,9 @@ class App {
       });
       socket.on('message', (data) => {
         const { channel, message } = data;
-        socket.to(channel).emit('message', message);
+        console.log('Chan and message', channel, message);
+        // socket.to(channel).emit('message', message);
+        socket.emit('message', { channel: 'respond', message: message });
       });
       socket.on('error', (error) => {
         console.error('WebSocket error:', error);
@@ -60,8 +62,7 @@ class App {
   private startServer(): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
-    this.server.listen(PORT, () => {
-    });
+    this.server.listen(PORT, () => {});
   }
 }
 const server = new App();
