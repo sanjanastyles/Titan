@@ -29,6 +29,7 @@ class ServiceManController {
       res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
     }
   };
+
   private handleLogin = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
@@ -103,7 +104,8 @@ class ServiceManController {
     try {
       const { isServiceman } = req.body;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pipeline: any[] = [
+
+      const pipeline:any[] = [
         {
           $lookup: {
             from: isServiceman ? 'servicemen' : 'customers',
