@@ -14,6 +14,7 @@ class App {
   private readonly server: http.Server;
   private readonly io: SocketIOServer;
   constructor() {
+    console.log('f');
     dotenv.config();
     this.app = express();
     this.server = http.createServer(this.app);

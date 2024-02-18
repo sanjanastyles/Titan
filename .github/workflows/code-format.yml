@@ -13,12 +13,13 @@ jobs:
         run: npm install # Install any dependencies required for code formatting
       - name: Format code with Prettier
         run: npm run format # Run your code formatting command (e.g., prettier)
-      - name: Remove logs
-        run: sed -i '/console.log/d' **/*.js **/*.jsx **/*.ts **/*.tsx # Remove console.log statements from all JavaScript and TypeScript files
+      - name: Remove console logs
+        run: |
+          find src \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec sed -i '/console.log/d' {} +
       - name: Commit changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add .
-          git commit -m "Auto-format code and remove logs"
+          git commit -m "Remove console logs"
           git push
