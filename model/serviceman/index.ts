@@ -10,6 +10,7 @@ interface IServiceman extends Document {
   isBlocked: boolean;
   password: string;
   jobs: string[];
+  referral: number;
   jobId: string[];
   isServiceman: boolean;
   token: string;
@@ -58,6 +59,9 @@ const serviceManSignup = new Schema<IServiceman>(
     },
     isServiceman: {
       type: Boolean,
+    },
+    referral: {
+      type: Number,
     },
     token: {
       type: String,

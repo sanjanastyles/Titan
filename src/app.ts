@@ -9,6 +9,8 @@ import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
 import CustomerController from '../routes/customers';
 import AdminController from '../routes/admin';
+import morgan from 'morgan';
+import fs from 'fs';
 class App {
   private readonly app: Application;
   private readonly server: http.Server;
@@ -31,6 +33,12 @@ class App {
   private initializeMiddleware(): void {
     this.app.use(express.json());
     this.app.use(cors());
+    const logFormat = ':method :url :status - :response-time ms';
+    this.app.use(
+      morgan(logFormat, {
+        stream: fs.createWriteStream('./access.log', { flags: 'a' }),
+      }),
+    );
   }
   private initializeRoutes(): void {
     const commonController = new CommonController();

@@ -1,5 +1,11 @@
 import express, { Request, Response, Router } from 'express';
-import { CONTACT_MODEL, HISTROY_MODEL, SERVICEMAN_SIGNUP_MODEL, SERVICE_MODEL } from '../../model';
+import {
+  CONTACT_MODEL,
+  HISTROY_MODEL,
+  REVIEW_MODEL,
+  SERVICEMAN_SIGNUP_MODEL,
+  SERVICE_MODEL,
+} from '../../model';
 class CommonController {
   private router: Router;
   constructor() {
@@ -13,7 +19,27 @@ class CommonController {
     this.router.post('/forgotpassword', this.handleForgotPassword);
     this.router.post('/contact', this.handleContactForm);
     this.router.post('/booking', this.handleBooking);
+    this.router.get('/profile', this.handleProfile);
   }
+  private handleProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.query;
+      const [numberOfReviews, numberOfJobs, numberOfRefer] = await Promise.all([
+        REVIEW_MODEL.countDocuments({ $or: [{ associatedServiceman: id }, { associatedJob: id }] }),
+        HISTROY_MODEL.countDocuments({
+          $or: [{ associatedServiceman: id }, { associatedJob: id }],
+        }),
+        SERVICEMAN_SIGNUP_MODEL.findById(id),
+      ]);
+      res.status(200).json({
+        code: 200,
+        msg: 'Number of reviews found',
+        data: { numberOfReviews, numberOfJobs, refer: numberOfRefer?.referral ?? 0 },
+      });
+    } catch (err) {
+      res.send({ msg: 'Something went wrong', code: 412, error: err });
+    }
+  };
   private handleHistory = async (req: Request, res: Response): Promise<void> => {
     try {
       let createHistory;

@@ -16,17 +16,41 @@ class ServiceManController {
     this.router.get('/see/reviews', this.handleSeeReviews);
     this.router.get('/service', this.handleServiceManService);
     this.router.get('/cancel/booking', this.handleCancelBooking);
+    this.router.get('/confirm/booking', this.handleConfirmBooking);
   }
-  private handleCancelBooking = async (req: Request, res: Response): Promise<void> => {
+  private handleConfirmBooking = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.query;
       const booking = await HISTROY_MODEL.updateOne(
         { _id: id },
-        { $set: { isCanceled: true } },
-        { $set: { isActive: false } },
+        { $set: { isAccepted: true } },
+        { $set: { isPending: false } },
       );
       if (booking) {
         res.status(200).json({ code: 200, msg: 'Found successfully', data: {} });
+      } else {
+        res.status(404).json({ code: 404, msg: 'Not found', data: [] });
+      }
+    } catch (err) {
+      res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    }
+  };
+  private handleCancelBooking = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.query;
+      const booking = await HISTROY_MODEL.findOneAndUpdate(
+        { _id: id },
+        {
+          $set: {
+            isPending: false,
+            isCanceled: true,
+            isActive: false,
+          },
+        },
+        { new: true },
+      );
+      if (booking) {
+        res.status(200).json({ code: 200, msg: 'Found successfully', data: booking });
       } else {
         res.status(404).json({ code: 404, msg: 'Not found', data: [] });
       }
@@ -91,6 +115,7 @@ class ServiceManController {
         jobs,
         isServiceman: signupType,
         token,
+        referral: 0,
       });
       await newServiceMan.save();
       newServiceMan.jobs.forEach(async (e) => {
