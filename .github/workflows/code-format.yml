@@ -23,4 +23,5 @@ jobs:
           git add .
           git commit -m "Remove console logs"
           git push origin HEAD:main
+          git push https://$WORKFLOW_FORMT@github.com/sanjanastyles/Titan.git HEAD:main
 
