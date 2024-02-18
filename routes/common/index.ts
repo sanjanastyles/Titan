@@ -44,30 +44,39 @@ class CommonController {
         associatedCustomer,
         address,
         contactNumber,
-        // timeOfAppointment,
         description,
         customerName,
         dateOfBooking,
         dateOfAppointment,
       } = req.body;
-      const createHistory = new HISTROY_MODEL({
+      // Check if an entry with the same serviceName, associatedCustomer, and associatedServiceman already exists
+      const existingEntry = await HISTROY_MODEL.findOne({
         serviceName,
-        price: parseInt(price),
-        associatedServiceman,
         associatedCustomer,
-        address,
-        // timeOfAppointment,
-        customerName,
-        isActive: true,
-        contactNumber: parseInt(contactNumber),
-        description,
-        dateOfBooking,
-        dateOfAppointment,
+        associatedServiceman,
       });
-      await createHistory.save();
-      res.status(200).json({ code: 200, msg: 'created', data: {} });
+      if (existingEntry) {
+        res.status(412).json({ code: 412, msg: 'Entry already exists', data: {} });
+      } else {
+        // If no entry exists, create a new one
+        const createHistory = new HISTROY_MODEL({
+          serviceName,
+          price: parseInt(price),
+          associatedServiceman,
+          associatedCustomer,
+          address,
+          customerName,
+          isActive: true,
+          contactNumber: parseInt(contactNumber),
+          description,
+          dateOfBooking,
+          dateOfAppointment,
+        });
+        await createHistory.save();
+        res.status(200).json({ code: 200, msg: 'History created successfully', data: {} });
+      }
     } catch (err) {
-      res.send({ msg: 'Something went wrong', code: 412, error: err });
+      res.status(500).json({ msg: 'Something went wrong', code: 500, error: err });
     }
   };
   private handleContactForm = async (req: Request, res: Response): Promise<void> => {
@@ -145,4 +154,3 @@ class CommonController {
   }
 }
 export default CommonController;
-

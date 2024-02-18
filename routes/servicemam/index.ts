@@ -14,7 +14,22 @@ class ServiceManController {
     this.router.get('/profile', auth, this.handleProfile);
     this.router.post('/profile', auth, this.handleProfilePost);
     this.router.get('/see/reviews', this.handleSeeReviews);
+    this.router.get('/service', this.handleServiceManService);
   }
+  private handleServiceManService = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const {id} = req.query;
+      const servicman = await SERVICEMAN_SIGNUP_MODEL.findById(id);
+      if (servicman) {
+        res.status(200).json({ code: 200, msg: 'Found successfully', data: servicman });
+      } else {
+        res.status(404).json({ code: 404, msg: 'Not found', data: [] });
+      }
+    } catch (err) {
+      res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    }
+  };
+
   private handleLogin = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
@@ -89,6 +104,7 @@ class ServiceManController {
     try {
       const { isServiceman } = req.body;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const pipeline:any[] = [
         {
           $lookup: {
