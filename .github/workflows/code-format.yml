@@ -18,8 +18,8 @@ jobs:
           find src \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec sed -i '/console.log/d' {} +
       - name: Commit changes
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "sanjanastyles"
+          git config --global user.email "sanjana2842002@gmai.com
           git add .
           git commit -m "Remove console logs"
-          git push
+          git push origin main
