@@ -51,7 +51,7 @@ class App {
         socket.leave(channel);
       });
       socket.on('message', (data) => {
-        const { channel, message } = data;
+        const { message } = data;
         // socket.to(channel).emit('message', message);
         socket.emit('message', { channel: 'respond', message: message });
       });
