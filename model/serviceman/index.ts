@@ -1,63 +1,49 @@
-import { Document, Schema, model } from 'mongoose';
-// Define interface for the Serviceman document
-interface IServiceman extends Document {
-  firstName: string;
-  lastName: string;
-  phoneNumber: number;
-  email: string;
-  address: string;
-  passcode: string;
-  isBlocked: boolean;
-  password: string;
-  jobs: string[];
-  jobId: string[];
-  isServiceman: boolean;
-  token: string;
-}
-// Define the Serviceman schema
-const serviceManSignup = new Schema<IServiceman>(
+import { Schema, model } from 'mongoose';
+
+const serviceManSignup = new Schema(
   {
-    firstName: {
+    name: {
       type: String,
       required: [true, 'First name is required'],
-    },
-    isBlocked: {
-      type: Boolean,
-    },
-    lastName: {
-      type: String,
-      required: [true, 'Last name is required'],
-    },
-    phoneNumber: {
-      type: Number,
-      required: [true, 'Phone number is required'],
     },
     email: {
       type: String,
       required: [true, 'Email is required'],
     },
-    address: {
-      type: String,
-      required: [true, 'Address is required'],
-    },
-    passcode: {
-      type: String,
-      required: [true, 'Passcode is required'],
-    },
     password: {
       type: String,
       required: [true, 'Password is required'],
     },
+    phoneNumber: {
+      type: Number,
+      required: [true, 'Phone number is required'],
+    },
+    address: {
+      type: String,
+      required: [true, 'Address is required'],
+    },
     jobs: {
-      type: [String],
+      type: [
+        {
+          name: { type: String, required: true },
+          keyword: { type: String, required: true },
+        },
+      ],
       required: [true, 'Jobs are required'],
+    },
+    isServiceman: {
+      type: String,
+    },
+
+    isBlocked: {
+      type: Boolean,
     },
     jobId: {
       type: [String],
       required: [true, 'Job IDs are required'],
     },
-    isServiceman: {
-      type: Boolean,
+    referral: {
+      type: Number,
     },
     token: {
       type: String,
@@ -67,6 +53,6 @@ const serviceManSignup = new Schema<IServiceman>(
     timestamps: true,
   },
 );
-// Define the Serviceman model
-const Serviceman = model<IServiceman>('Serviceman', serviceManSignup);
+
+const Serviceman = model('Serviceman', serviceManSignup);
 export default Serviceman;

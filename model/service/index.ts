@@ -1,10 +1,16 @@
 import { Schema, model } from 'mongoose';
 import { IService } from '../interface';
+
 const serviceSchema = new Schema<IService>(
   {
     serviceName: {
       type: String,
       required: [true, 'Service name is required'],
+    },
+
+    serviceId: {
+      type: String,
+      required: [true, 'serviceId name is required'],
     },
     associatedServiceman: [
       {

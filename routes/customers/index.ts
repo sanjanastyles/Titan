@@ -1,33 +1,19 @@
-import express, { Request, Response, Router } from 'express';
-import { REVIEW_MODEL } from '../../model';
+import express, { Router } from 'express';
+import { customerController } from '../../controller';
+
 class CustomerController {
   private router: Router;
-  constructor() {
+  constructor () {
     this.router = express.Router();
     this.initializeRoutes();
   }
-  private initializeRoutes(): void {
-    this.router.post('/review', this.handleReviewPost);
+
+  private initializeRoutes (): void {
+    this.router.post('/review', customerController.handleReviewPost);
+    this.router.get('/online/serviceman', customerController.getAllOnlineServiceMan);
   }
-  private handleReviewPost = async (req: Request, res: Response) => {
-    try {
-      const { quality, feedback, recommend, reviewerId, associatedServiceman, associatedJob } =
-        req.body;
-      const newReview = new REVIEW_MODEL({
-        quality,
-        feedback,
-        recommend,
-        reviewerId,
-        associatedServiceman,
-        associatedJob,
-      });
-      await newReview.save();
-      res.status(200).json({ code: 201, msg: 'Created Successfully' });
-    } catch (err) {
-      res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
-    }
-  };
-  public getRouter(): Router {
+
+  public getRouter (): Router {
     return this.router;
   }
 }

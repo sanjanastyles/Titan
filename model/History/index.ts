@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+
 const historySchema = new Schema(
   {
     serviceName: {
@@ -33,6 +34,10 @@ const historySchema = new Schema(
       type: Boolean,
       required: [true, 'Pending is required'],
     },
+    // email: {
+    //   type: String,
+    //   required: [true, 'Email is required'],
+    // },
     customerName: {
       type: String,
       required: [true, 'Email is required'],

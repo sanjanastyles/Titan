@@ -7,7 +7,7 @@ const contactSchema = new Schema<IContact>(
       type: String,
       required: [true, 'Email is required'],
     },
-    subject: {
+    name: {
       type: String,
       required: [true, 'Subject is required'],
     },
