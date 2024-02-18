@@ -112,7 +112,9 @@ class CommonController {
   private handleService = async (req: Request, res: Response): Promise<void> => {
     const { serviceName } = req.params;
     try {
-      const service = await SERVICE_MODEL.findOne({ serviceName: serviceName.toLowerCase() });
+      const service = await SERVICE_MODEL.findOne({
+        serviceName: serviceName.toLowerCase(),
+      });
       if (service) {
         const servicemen = await SERVICEMAN_SIGNUP_MODEL.aggregate([
           {
@@ -139,7 +141,9 @@ class CommonController {
   private handleForgotPassword = async (req: Request, res: Response): Promise<void> => {
     const { phonenumber } = req.body;
     try {
-      const user = await SERVICEMAN_SIGNUP_MODEL.findOne({ phoneNumber: phonenumber });
+      const user = await SERVICEMAN_SIGNUP_MODEL.findOne({
+        phoneNumber: phonenumber,
+      });
       if (!user) {
         res.status(404).json({ code: 404, msg: 'User not found' });
         return;
