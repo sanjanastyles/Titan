@@ -10,9 +10,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: npm install # Install any dependencies required for code formatting
+        run: npm install
       - name: Format code with Prettier
-        run: npm run format # Run your code formatting command (e.g., prettier)
+        run: npm run format
       - name: Remove console logs
         run: |
           find src \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec sed -i '/console.log/d' {} +
@@ -23,4 +23,4 @@ jobs:
           git add .
           git commit -m "Remove console logs"
           git push origin main
-
+\
