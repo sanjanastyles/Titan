@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import { createToken } from '../../utils/utils';
 import { auth } from '../../middleware';
-import { REVIEW_MODEL, SERVICEMAN_SIGNUP_MODEL, SERVICE_MODEL } from '../../model';
+import { HISTROY_MODEL, REVIEW_MODEL, SERVICEMAN_SIGNUP_MODEL, SERVICE_MODEL } from '../../model';
 class ServiceManController {
   private router: Router;
   constructor() {
@@ -15,10 +15,28 @@ class ServiceManController {
     this.router.post('/profile', auth, this.handleProfilePost);
     this.router.get('/see/reviews', this.handleSeeReviews);
     this.router.get('/service', this.handleServiceManService);
+    this.router.get('/cancel/booking', this.handleCancelBooking);
   }
+  private handleCancelBooking = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.query;
+      const booking = await HISTROY_MODEL.updateOne(
+        { _id: id },
+        { $set: { isCanceled: true } },
+        { $set: { isActive: false } },
+      );
+      if (booking) {
+        res.status(200).json({ code: 200, msg: 'Found successfully', data: {} });
+      } else {
+        res.status(404).json({ code: 404, msg: 'Not found', data: [] });
+      }
+    } catch (err) {
+      res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    }
+  };
   private handleServiceManService = async (req: Request, res: Response): Promise<void> => {
     try {
-      const {id} = req.query;
+      const { id } = req.query;
       const servicman = await SERVICEMAN_SIGNUP_MODEL.findById(id);
       if (servicman) {
         res.status(200).json({ code: 200, msg: 'Found successfully', data: servicman });
@@ -29,7 +47,6 @@ class ServiceManController {
       res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
     }
   };
-
   private handleLogin = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
@@ -104,8 +121,7 @@ class ServiceManController {
     try {
       const { isServiceman } = req.body;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-      const pipeline:any[] = [
+      const pipeline: any[] = [
         {
           $lookup: {
             from: isServiceman ? 'servicemen' : 'customers',

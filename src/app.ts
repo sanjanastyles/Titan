@@ -43,7 +43,6 @@ class App {
   }
   private initializeWebSocket(): void {
     this.io.on('connection', (socket: Socket) => {
-      console.log('CONNECTED...');
       socket.on('disconnect', () => {});
       socket.on('subscribe', (channel: string) => {
         socket.join(channel);
@@ -53,7 +52,6 @@ class App {
       });
       socket.on('message', (data) => {
         const { channel, message } = data;
-        console.log('Chan and message', channel, message);
         // socket.to(channel).emit('message', message);
         socket.emit('message', { channel: 'respond', message: message });
       });
@@ -68,4 +66,5 @@ class App {
     this.server.listen(PORT, () => {});
   }
 }
-const server = new App();
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _server = new App();
