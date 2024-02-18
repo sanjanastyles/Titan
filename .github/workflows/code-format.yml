@@ -21,12 +21,6 @@ jobs:
           git config --global user.name "sanjanastyles"
           git config --global user.email "sanjana2842002@gmai.com"
           git add .
-* fix(workflow): add scripts in package json
-
-* fix(workflow): update yml
-
-* fix(workflow): update yml
-
           git commit -m "Remove console logs"
           git push origin main
 
