@@ -22,5 +22,5 @@ jobs:
           git config --global user.email "sanjana2842002@gmai.com"
           git add .
           git commit -m "Remove console logs"
-          git push origin main
+          git push origin HEAD:main
 
