@@ -54,6 +54,7 @@ class CommonController {
         serviceName,
         associatedCustomer,
         associatedServiceman,
+        isCanceled: false,
       });
       if (existingEntry) {
         res.status(412).json({ code: 412, msg: 'Entry already exists', data: {} });
@@ -67,6 +68,9 @@ class CommonController {
           address,
           customerName,
           isActive: true,
+          isAccepted: false,
+          isCanceled: false,
+          isPending: true,
           contactNumber: parseInt(contactNumber),
           description,
           dateOfBooking,

@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-
 const historySchema = new Schema(
   {
     serviceName: {
@@ -22,11 +21,18 @@ const historySchema = new Schema(
       type: String,
       required: [true, 'Email is required'],
     },
-
-    // timeOfAppointment: {
-    //   type: String,
-    //   required: [true, 'Email is required'],
-    // },
+    isCanceled: {
+      type: Boolean,
+      required: [true, 'Cancel is required'],
+    },
+    isAccepted: {
+      type: Boolean,
+      required: [true, 'Accept is required'],
+    },
+    isPending: {
+      type: Boolean,
+      required: [true, 'Pending is required'],
+    },
     customerName: {
       type: String,
       required: [true, 'Email is required'],
@@ -57,5 +63,4 @@ const historySchema = new Schema(
   },
 );
 const History = mongoose.model('History', historySchema);
-
 export default History;
