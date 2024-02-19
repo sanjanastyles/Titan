@@ -1,32 +1,36 @@
-// server.ts
 import * as dotenv from 'dotenv';
 import express, { Application } from 'express';
 import cors from 'cors';
 import http from 'http';
-import { Socket, Server as SocketIOServer } from 'socket.io';
+import { Server as SocketIOServer } from 'socket.io';
+import morgan from 'morgan';
+import fs from 'fs';
 import dbInit from '../dbConnection';
 import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
 import CustomerController from '../routes/customers';
 import AdminController from '../routes/admin';
-import morgan from 'morgan';
-import fs from 'fs';
+import Message from '../model/messageModel';
+import Conversation from '../model/conversationModel';
+dotenv.config();
 class App {
-  private readonly app: Application;
-  private readonly server: http.Server;
-  private readonly io: SocketIOServer;
+  private app: Application;
+  private server: http.Server;
+  private io: SocketIOServer;
+  private userSocketMap: { [userId: string]: string };
   constructor() {
-    dotenv.config();
     this.app = express();
     this.server = http.createServer(this.app);
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: '*',
+        origin: ['http://localhost:3000', '*'],
+        methods: ['GET', 'POST'],
       },
     });
+    this.userSocketMap = {};
     this.initializeMiddleware();
     this.initializeRoutes();
-    this.initializeWebSocket();
+    this.initializeSocketIO();
     this.startServer();
   }
   private initializeMiddleware(): void {
@@ -49,77 +53,41 @@ class App {
     this.app.use('/customer', customerController.getRouter());
     this.app.use('/admin', adminController.getRouter());
   }
-  private initializeWebSocket(): void {
-    this.io.use((socket, next) => {
-      const username = socket.handshake.auth.username;
-      console.log('FF', socket.handshake);
-      if (!username) {
-        return next(new Error('invalid username'));
-      }
-      socket['username'] = username;
-      next();
-    });
-    // this.io.on('connection', (socket) => {
-    //   // fetch existing users
-    //   const users = [];
-    //   for (let [id, socket] of this.io.of('/').sockets) {
-    //     users.push({
-    //       userID: id,
-    //       username: socket['username'],
-    //     });
-    //   }
-    //   socket.emit('users', users);
-    //   // notify existing users
-    //   socket.broadcast.emit('user connected', {
-    //     userID: socket.id,
-    //     username: socket['username'],
-    //   });
-    //   // forward the private message to the right recipient
-    //   socket.on('private message', ({ content, to }) => {
-    //     socket.to(to).emit('private message', {
-    //       content,
-    //       from: socket.id,
-    //     });
-    //   });
-    //   // notify users upon disconnection
-    //   socket.on('disconnect', () => {
-    //     socket.broadcast.emit('user disconnected', socket.id);
-    //   });
-    // });
+  private initializeSocketIO(): void {
     this.io.on('connection', (socket) => {
-      console.log("HERE");
-      socket.on('disconnect', () => {});
-      socket.on('message', (data) => {
-        const { message } = data;
-        this.io.emit('message', { channel: 'respond', message }); // Broadcast to all clients
+      console.log('user connected', socket.id);
+      const userId = socket.handshake.query.userId;
+      if (userId !== 'undefined') this.userSocketMap[userId as string] = socket.id;
+      this.io.emit('getOnlineUsers', Object.keys(this.userSocketMap));
+      socket.on('markMessagesAsSeen', async ({ conversationId, userId }) => {
+        try {
+          await Message.updateMany(
+            { conversationId: conversationId, seen: false },
+            { $set: { seen: true } },
+          );
+          await Conversation.updateOne(
+            { _id: conversationId },
+            { $set: { 'lastMessage.seen': true } },
+          );
+          this.io.to(this.userSocketMap[userId]).emit('messagesSeen', { conversationId });
+        } catch (error) {
+          console.log(error);
+        }
       });
-      socket.on('error', (error) => {
-        console.error('WebSocket error:', error);
-      });
-    });
-    this.io.on('connection', (socket: Socket) => {
-      socket.on('disconnect', () => {});
-      socket.on('subscribe', (channel: string) => {
-        socket.join(channel);
-      });
-      socket.on('unsubscribe', (channel: string) => {
-        socket.leave(channel);
-      });
-      socket.on('message', (data) => {
-        const { channel, message } = data;
-        socket.to(channel).emit('message', message);
-        // socket.emit('message', { channel: 'respond', message: message });
-      });
-      socket.on('error', (error) => {
-        console.error('WebSocket error:', error);
+      socket.on('disconnect', () => {
+        console.log('user disconnected');
+        delete this.userSocketMap[userId as string];
+        this.io.emit('getOnlineUsers', Object.keys(this.userSocketMap));
       });
     });
   }
   private startServer(): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
-    this.server.listen(PORT, () => {});
+    this.server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
   }
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _server = new App();
+const server = new App();
