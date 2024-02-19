@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import express, { Application } from 'express';
 import cors from 'cors';
 import http from 'http';
-import { Server as SocketIOServer, Socket } from 'socket.io';
+import { Socket, Server as SocketIOServer } from 'socket.io';
 import dbInit from '../dbConnection';
 import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
@@ -16,7 +16,6 @@ class App {
   private readonly server: http.Server;
   private readonly io: SocketIOServer;
   constructor() {
-    console.log('f');
     dotenv.config();
     this.app = express();
     this.server = http.createServer(this.app);
@@ -51,6 +50,53 @@ class App {
     this.app.use('/admin', adminController.getRouter());
   }
   private initializeWebSocket(): void {
+    this.io.use((socket, next) => {
+      const username = socket.handshake.auth.username;
+      console.log('FF', socket.handshake);
+      if (!username) {
+        return next(new Error('invalid username'));
+      }
+      socket['username'] = username;
+      next();
+    });
+    // this.io.on('connection', (socket) => {
+    //   // fetch existing users
+    //   const users = [];
+    //   for (let [id, socket] of this.io.of('/').sockets) {
+    //     users.push({
+    //       userID: id,
+    //       username: socket['username'],
+    //     });
+    //   }
+    //   socket.emit('users', users);
+    //   // notify existing users
+    //   socket.broadcast.emit('user connected', {
+    //     userID: socket.id,
+    //     username: socket['username'],
+    //   });
+    //   // forward the private message to the right recipient
+    //   socket.on('private message', ({ content, to }) => {
+    //     socket.to(to).emit('private message', {
+    //       content,
+    //       from: socket.id,
+    //     });
+    //   });
+    //   // notify users upon disconnection
+    //   socket.on('disconnect', () => {
+    //     socket.broadcast.emit('user disconnected', socket.id);
+    //   });
+    // });
+    this.io.on('connection', (socket) => {
+      console.log("HERE");
+      socket.on('disconnect', () => {});
+      socket.on('message', (data) => {
+        const { message } = data;
+        this.io.emit('message', { channel: 'respond', message }); // Broadcast to all clients
+      });
+      socket.on('error', (error) => {
+        console.error('WebSocket error:', error);
+      });
+    });
     this.io.on('connection', (socket: Socket) => {
       socket.on('disconnect', () => {});
       socket.on('subscribe', (channel: string) => {
@@ -60,9 +106,9 @@ class App {
         socket.leave(channel);
       });
       socket.on('message', (data) => {
-        const { message } = data;
-        // socket.to(channel).emit('message', message);
-        socket.emit('message', { channel: 'respond', message: message });
+        const { channel, message } = data;
+        socket.to(channel).emit('message', message);
+        // socket.emit('message', { channel: 'respond', message: message });
       });
       socket.on('error', (error) => {
         console.error('WebSocket error:', error);

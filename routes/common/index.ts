@@ -24,7 +24,7 @@ class CommonController {
   private handleProfile = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.query;
-      const [numberOfReviews, numberOfJobs, numberOfRefer] = await Promise.all([
+      const [numberOfReviews, numberOfJobs, userData] = await Promise.all([
         REVIEW_MODEL.countDocuments({ $or: [{ associatedServiceman: id }, { associatedJob: id }] }),
         HISTROY_MODEL.countDocuments({
           $or: [{ associatedServiceman: id }, { associatedJob: id }],
@@ -34,7 +34,7 @@ class CommonController {
       res.status(200).json({
         code: 200,
         msg: 'Number of reviews found',
-        data: { numberOfReviews, numberOfJobs, refer: numberOfRefer?.referral ?? 0 },
+        data: { numberOfReviews, numberOfJobs, userData: userData },
       });
     } catch (err) {
       res.send({ msg: 'Something went wrong', code: 412, error: err });
