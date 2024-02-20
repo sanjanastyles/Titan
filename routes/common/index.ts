@@ -1,5 +1,13 @@
 import express, { Request, Response, Router } from 'express';
-import { CONTACT_MODEL, HISTROY_MODEL, SERVICEMAN_SIGNUP_MODEL, SERVICE_MODEL } from '../../model';
+import {
+  CONTACT_MODEL,
+  HISTROY_MODEL,
+  REVIEW_MODEL,
+  SERVICEMAN_SIGNUP_MODEL,
+  SERVICE_MODEL,
+} from '../../model';
+import { sendMessage } from '../../controller/message';
+import mongoose from 'mongoose';
 class CommonController {
   private router: Router;
   constructor() {
@@ -13,7 +21,50 @@ class CommonController {
     this.router.post('/forgotpassword', this.handleForgotPassword);
     this.router.post('/contact', this.handleContactForm);
     this.router.post('/booking', this.handleBooking);
+    this.router.get('/profile', this.handleProfile);
+    this.router.get('/users/profile', this.getUserProfile);
+    this.router.post('/post/message', sendMessage);
   }
+  private getUserProfile = async (req, res) => {
+    const { query } = req.query;
+    try {
+      let user;
+      if (mongoose.Types.ObjectId.isValid(query)) {
+        user = await SERVICEMAN_SIGNUP_MODEL.findById({ _id: query })
+          .select('-password')
+          .select('-updatedAt');
+      } else {
+        console.log('YU', query);
+        user = await SERVICEMAN_SIGNUP_MODEL.findOne({ firstName: query })
+          .select('-password')
+          .select('-updatedAt');
+      }
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+      console.log('Error in getUserProfile: ', err.message);
+    }
+  };
+  private handleProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.query;
+      const [numberOfReviews, numberOfJobs, userData] = await Promise.all([
+        REVIEW_MODEL.countDocuments({ $or: [{ associatedServiceman: id }, { associatedJob: id }] }),
+        HISTROY_MODEL.countDocuments({
+          $or: [{ associatedServiceman: id }, { associatedJob: id }],
+        }),
+        SERVICEMAN_SIGNUP_MODEL.findById(id),
+      ]);
+      res.status(200).json({
+        code: 200,
+        msg: 'Number of reviews found',
+        data: { numberOfReviews, numberOfJobs, userData: userData },
+      });
+    } catch (err) {
+      res.send({ msg: 'Something went wrong', code: 412, error: err });
+    }
+  };
   private handleHistory = async (req: Request, res: Response): Promise<void> => {
     try {
       let createHistory;

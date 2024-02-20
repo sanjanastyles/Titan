@@ -1,36 +1,47 @@
-// server.ts
 import * as dotenv from 'dotenv';
 import express, { Application } from 'express';
 import cors from 'cors';
 import http from 'http';
-import { Server as SocketIOServer, Socket } from 'socket.io';
+import { Server as SocketIOServer } from 'socket.io';
+import morgan from 'morgan';
+import fs from 'fs';
 import dbInit from '../dbConnection';
 import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
 import CustomerController from '../routes/customers';
 import AdminController from '../routes/admin';
+import Message from '../model/messageModel';
+import Conversation from '../model/conversationModel';
+dotenv.config();
 class App {
-  private readonly app: Application;
-  private readonly server: http.Server;
-  private readonly io: SocketIOServer;
+  public app: Application;
+  public io: SocketIOServer;
+  public server: http.Server;
+  private userSocketMap: { [userId: string]: string };
   constructor() {
-    console.log('f');
-    dotenv.config();
     this.app = express();
     this.server = http.createServer(this.app);
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: '*',
+        origin: ['http://localhost:3000', '*'],
+        methods: ['GET', 'POST'],
       },
     });
+    this.userSocketMap = {};
     this.initializeMiddleware();
     this.initializeRoutes();
-    this.initializeWebSocket();
+    this.initializeSocketIO();
     this.startServer();
   }
   private initializeMiddleware(): void {
     this.app.use(express.json());
     this.app.use(cors());
+    const logFormat = ':method :url :status - :response-time ms';
+    this.app.use(
+      morgan(logFormat, {
+        stream: fs.createWriteStream('./access.log', { flags: 'a' }),
+      }),
+    );
   }
   private initializeRoutes(): void {
     const commonController = new CommonController();
@@ -42,30 +53,49 @@ class App {
     this.app.use('/customer', customerController.getRouter());
     this.app.use('/admin', adminController.getRouter());
   }
-  private initializeWebSocket(): void {
-    this.io.on('connection', (socket: Socket) => {
-      socket.on('disconnect', () => {});
-      socket.on('subscribe', (channel: string) => {
-        socket.join(channel);
+  private initializeSocketIO(): void {
+    this.io.on('connection', (socket) => {
+      console.log('user connected', socket.id);
+      const userId = socket.handshake.query.userId;
+      if (userId !== 'undefined') this.userSocketMap[userId as string] = socket.id;
+      this.io.emit('getOnlineUsers', Object.keys(this.userSocketMap));
+      socket.on('markMessagesAsSeen', async ({ conversationId, userId }) => {
+        try {
+          await Message.updateMany(
+            { conversationId: conversationId, seen: false },
+            { $set: { seen: true } },
+          );
+          await Conversation.updateOne(
+            { _id: conversationId },
+            { $set: { 'lastMessage.seen': true } },
+          );
+          this.io.to(this.userSocketMap[userId]).emit('messagesSeen', { conversationId });
+        } catch (error) {
+          console.log(error);
+        }
       });
-      socket.on('unsubscribe', (channel: string) => {
-        socket.leave(channel);
-      });
-      socket.on('message', (data) => {
-        const { message } = data;
-        // socket.to(channel).emit('message', message);
-        socket.emit('message', { channel: 'respond', message: message });
-      });
-      socket.on('error', (error) => {
-        console.error('WebSocket error:', error);
+      socket.on('disconnect', () => {
+        console.log('user disconnected');
+        delete this.userSocketMap[userId as string];
+        this.io.emit('getOnlineUsers', Object.keys(this.userSocketMap));
       });
     });
   }
   private startServer(): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
-    this.server.listen(PORT, () => {});
+    this.server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  }
+  public getRecipientSocketId(recipientId: string): string | undefined {
+    return this.userSocketMap[recipientId];
   }
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _server = new App();
+// Create an instance of the App class to export
+const server = new App();
+// Export the necessary variables and functions
+export const io = server.io;
+export const app = server.app;
+export const serverInstance = server.server;
+export const getRecipientSocketId = server.getRecipientSocketId.bind(server);
