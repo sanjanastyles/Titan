@@ -6,6 +6,7 @@ import {
   SERVICEMAN_SIGNUP_MODEL,
   SERVICE_MODEL,
 } from '../../model';
+import { sendMessage } from '../../controller/message';
 import mongoose from 'mongoose';
 class CommonController {
   private router: Router;
@@ -22,6 +23,7 @@ class CommonController {
     this.router.post('/booking', this.handleBooking);
     this.router.get('/profile', this.handleProfile);
     this.router.get('/users/profile', this.getUserProfile);
+    this.router.post('/post/message', sendMessage);
   }
   private getUserProfile = async (req, res) => {
     const { query } = req.query;

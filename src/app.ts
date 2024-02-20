@@ -14,9 +14,9 @@ import Message from '../model/messageModel';
 import Conversation from '../model/conversationModel';
 dotenv.config();
 class App {
-  private app: Application;
-  private server: http.Server;
-  private io: SocketIOServer;
+  public app: Application;
+  public io: SocketIOServer;
+  public server: http.Server;
   private userSocketMap: { [userId: string]: string };
   constructor() {
     this.app = express();
@@ -88,6 +88,14 @@ class App {
       console.log(`Server is running on port ${PORT}`);
     });
   }
+  public getRecipientSocketId(recipientId: string): string | undefined {
+    return this.userSocketMap[recipientId];
+  }
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// Create an instance of the App class to export
 const server = new App();
+// Export the necessary variables and functions
+export const io = server.io;
+export const app = server.app;
+export const serverInstance = server.server;
+export const getRecipientSocketId = server.getRecipientSocketId.bind(server);
