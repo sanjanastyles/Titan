@@ -7,7 +7,6 @@ async function sendMessage(req, res) {
   try {
     const { recipientId, message } = req.body;
     // let { img } = req.body;
-    console.log(req.user,"GG")
     const senderId = req.user;
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] },
