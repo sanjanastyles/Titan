@@ -6,8 +6,9 @@ import {
   SERVICEMAN_SIGNUP_MODEL,
   SERVICE_MODEL,
 } from '../../model';
-import { sendMessage } from '../../controller/message';
+import { sendMessage } from '../../controller/Messages/message';
 import mongoose from 'mongoose';
+
 class CommonController {
   private router: Router;
   constructor() {

@@ -12,6 +12,7 @@ import CustomerController from '../routes/customers';
 import AdminController from '../routes/admin';
 import Message from '../model/messageModel';
 import Conversation from '../model/conversationModel';
+
 dotenv.config();
 class App {
   public app: Application;

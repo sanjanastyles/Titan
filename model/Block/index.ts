@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+
 const blockSchema = new Schema(
   {
     email: {

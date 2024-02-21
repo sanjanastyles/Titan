@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import { createToken } from '../../utils/utils';
 import { auth } from '../../middleware';
 import { HISTROY_MODEL, REVIEW_MODEL, SERVICEMAN_SIGNUP_MODEL, SERVICE_MODEL } from '../../model';
+
 class ServiceManController {
   private router: Router;
   constructor() {
