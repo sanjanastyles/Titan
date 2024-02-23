@@ -6,7 +6,9 @@ import {
   HISTROY_MODEL,
   CONTACT_MODEL,
   SERVICE_MODEL,
+  ONLINEUSER_MODEL,
 } from '../../model';
+
 export const getUserProfile = async (req, res) => {
   const { query } = req.query;
   try {
@@ -26,12 +28,12 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-export const deleteBooking = async (req, res) => {
+export const deleteBooking = async (req: Request, res: Response) => {
   const { id } = req.query;
   let booking;
   try {
-    booking = await HISTROY_MODEL.findById({ _id: id });
-    console.log(booking);
+    booking = await HISTROY_MODEL.deleteOne({ _id: id }, { new: true });
+    if (booking) return res.status(200).json({ code: 200, message: 'Booking Deleted' });
     if (booking) return res.status(404).json({ code: 404, error: 'Booking not found' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -195,5 +197,39 @@ export const handleForgotPassword = async (req: Request, res: Response): Promise
     res.send({ code: 200, msg: 'Phone Number Found' });
   } catch (err) {
     res.status(500).send({ msg: 'Internal Server Error', code: 500, error: err });
+  }
+};
+export const handleOnline = async (req: Request, res: Response) => {
+  const { id, isServiceMan } = req.query;
+  console.log(id, isServiceMan);
+  let user;
+  try {
+    if (!id) {
+      return res.status(400).json({ error: 'Missing id parameter' });
+    }
+    const existingUser = await ONLINEUSER_MODEL.findOne({ userId: id });
+    if (existingUser) {
+      return res.status(412).json({ error: 'ALREADY THERE' });
+    }
+    user = new ONLINEUSER_MODEL({
+      userId: id,
+      isServiceMan,
+    });
+    await user.save();
+    return res.status(200).json({ code: 200, message: 'Success' });
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+export const handleOffline = async (req: Request, res: Response) => {
+  const { id } = req.query;
+  let user;
+  try {
+    user = await ONLINEUSER_MODEL.findOneAndDelete({ userId: id });
+    if (!user) return res.status(404).json({ code: 404, error: 'User not found' });
+    return res.status(200).json({ code: 200, message: 'Succes' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

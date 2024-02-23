@@ -10,6 +10,7 @@ class CustomerController {
 
   private initializeRoutes (): void {
     this.router.post('/review', customerController.handleReviewPost);
+    this.router.get('/online/serviceman', customerController.getAllOnlineServiceMan);
   }
 
   public getRouter (): Router {

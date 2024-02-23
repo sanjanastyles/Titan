@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
-import { HISTROY_MODEL, SERVICEMAN_SIGNUP_MODEL, SERVICE_MODEL, REVIEW_MODEL } from '../../model';
+import {
+  HISTROY_MODEL,
+  SERVICEMAN_SIGNUP_MODEL,
+  SERVICE_MODEL,
+  REVIEW_MODEL,
+  ONLINEUSER_MODEL,
+} from '../../model';
 import { createToken } from '../../utils/utils';
 
 export const handleConfirmBooking = async (req: Request, res: Response): Promise<void> => {
@@ -25,7 +31,6 @@ export const handleConfirmBooking = async (req: Request, res: Response): Promise
     res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
   }
 };
-
 export const handleCancelBooking = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.query;
@@ -49,7 +54,6 @@ export const handleCancelBooking = async (req: Request, res: Response): Promise<
     res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
   }
 };
-
 export const handleServiceManService = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.query;
@@ -63,12 +67,15 @@ export const handleServiceManService = async (req: Request, res: Response): Prom
     res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
   }
 };
-
 export const handleLogin = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
     const user = await SERVICEMAN_SIGNUP_MODEL.findOne({ email });
     if (user && user.password === password) {
+      await new ONLINEUSER_MODEL({
+        userId: user._id,
+        isServiceMan: user.isServiceman,
+      }).save();
       res.status(200).json({ code: 200, msg: 'Success', data: user });
     } else {
       res.status(401).json({ code: 401, msg: 'Invalid credentials', data: {} });
@@ -77,7 +84,6 @@ export const handleLogin = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
   }
 };
-
 export const handleSignup = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -130,15 +136,12 @@ export const handleSignup = async (req: Request, res: Response): Promise<void> =
     res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
   }
 };
-
 export const handleProfile = (req: Request, res: Response): void => {
   res.send({ KEY: 'profile', TOKEN: 'token' });
 };
-
 export const handleProfilePost = (req: Request, res: Response): void => {
   res.send({ KEY: 'profile_post', TOKEN: 'token' });
 };
-
 export const handleSeeReviews = async (req: Request, res: Response) => {
   try {
     const { isServiceman } = req.body;
