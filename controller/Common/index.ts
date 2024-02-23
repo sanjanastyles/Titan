@@ -7,7 +7,6 @@ import {
   CONTACT_MODEL,
   SERVICE_MODEL,
 } from '../../model';
-
 export const getUserProfile = async (req, res) => {
   const { query } = req.query;
   try {
@@ -17,7 +16,6 @@ export const getUserProfile = async (req, res) => {
         .select('-password')
         .select('-updatedAt');
     } else {
-      console.log('YU', query);
       user = await SERVICEMAN_SIGNUP_MODEL.findOne({ firstName: query })
         .select('-password')
         .select('-updatedAt');
@@ -26,7 +24,17 @@ export const getUserProfile = async (req, res) => {
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
-    console.log('Error in getUserProfile: ', err.message);
+  }
+};
+export const deleteBooking = async (req, res) => {
+  const { id } = req.query;
+  let booking;
+  try {
+    booking = await HISTROY_MODEL.findById({ _id: id });
+    console.log(booking);
+    if (booking) return res.status(404).json({ code: 404, error: 'Booking not found' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 export const handleProfile = async (req: Request, res: Response): Promise<void> => {
@@ -83,7 +91,6 @@ export const handleBooking = async (req: Request, res: Response): Promise<void> 
       dateOfBooking,
       dateOfAppointment,
     } = req.body;
-    // Check if an entry with the same serviceName, associatedCustomer, and associatedServiceman already exists
     const existingEntry = await HISTROY_MODEL.findOne({
       serviceName,
       associatedCustomer,
@@ -93,7 +100,6 @@ export const handleBooking = async (req: Request, res: Response): Promise<void> 
     if (existingEntry) {
       res.status(412).json({ code: 412, msg: 'Entry already exists', data: {} });
     } else {
-      // If no entry exists, create a new one
       const createHistory = new HISTROY_MODEL({
         serviceName,
         price: parseInt(price),

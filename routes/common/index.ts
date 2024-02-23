@@ -14,10 +14,12 @@ class CommonController {
     this.router.get('/service/:serviceName', commonController.handleService);
     this.router.get('/profile', commonController.handleProfile);
     this.router.get('/users/profile', commonController.getUserProfile);
+    this.router.get('/delete/booking', commonController.deleteBooking);
     this.router.post('/forgotpassword', commonController.handleForgotPassword);
     this.router.post('/contact', commonController.handleContactForm);
     this.router.post('/booking', commonController.handleBooking);
     this.router.post('/post/message', messageController.sendMessage);
+
   }
 
   public getRouter (): Router {

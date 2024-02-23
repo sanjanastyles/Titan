@@ -42,6 +42,7 @@ async function sendMessage (req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
 async function getMessages (req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;

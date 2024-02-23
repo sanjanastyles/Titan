@@ -59,7 +59,7 @@ class App {
 
   private initializeSocketIO (): void {
     this.io.on('connection', (socket) => {
-      console.log('user connected', socket.id);
+      console.log('user connected', socket.handshake.query.userId);
       const userId = socket.handshake.query.userId;
       if (userId !== 'undefined') this.userSocketMap[userId as string] = socket.id;
       this.io.emit('getOnlineUsers', Object.keys(this.userSocketMap));
