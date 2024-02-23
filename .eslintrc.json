@@ -10,9 +10,17 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "extends": ["eslint:recommended", "prettier", "plugin:@typescript-eslint/recommended"],
-  "plugins": ["import"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "plugins": ["@typescript-eslint", "prettier", "import"],
   "rules": {
-    "import/newline-after-import": ["error", { "count": 1 }]
+    "import/newline-after-import": ["error", { "count": 1 }],
+    "lines-between-class-members": ["warn", "always", { "exceptAfterSingleLine": true }],
+    "indent": ["error", 2],
+    "camelcase": "warn",
+    "quotes": ["error", "single"],
+    "comma-dangle": ["error", "always-multiline"],
+    "space-before-function-paren": ["error", "always"],
+    "space-infix-ops": "error",
+    "comma-spacing": "error"
   }
 }

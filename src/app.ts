@@ -19,7 +19,7 @@ class App {
   public io: SocketIOServer;
   public server: http.Server;
   private userSocketMap: { [userId: string]: string };
-  constructor() {
+  constructor () {
     this.app = express();
     this.server = http.createServer(this.app);
     this.io = new SocketIOServer(this.server, {
@@ -34,7 +34,8 @@ class App {
     this.initializeSocketIO();
     this.startServer();
   }
-  private initializeMiddleware(): void {
+
+  private initializeMiddleware (): void {
     this.app.use(express.json());
     this.app.use(cors());
     const logFormat = ':method :url :status - :response-time ms';
@@ -44,7 +45,8 @@ class App {
       }),
     );
   }
-  private initializeRoutes(): void {
+
+  private initializeRoutes (): void {
     const commonController = new CommonController();
     const serviceManController = new ServiceManController();
     const customerController = new CustomerController();
@@ -54,7 +56,8 @@ class App {
     this.app.use('/customer', customerController.getRouter());
     this.app.use('/admin', adminController.getRouter());
   }
-  private initializeSocketIO(): void {
+
+  private initializeSocketIO (): void {
     this.io.on('connection', (socket) => {
       console.log('user connected', socket.id);
       const userId = socket.handshake.query.userId;
@@ -82,14 +85,16 @@ class App {
       });
     });
   }
-  private startServer(): void {
+
+  private startServer (): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
     this.server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   }
-  public getRecipientSocketId(recipientId: string): string | undefined {
+
+  public getRecipientSocketId (recipientId: string): string | undefined {
     return this.userSocketMap[recipientId];
   }
 }

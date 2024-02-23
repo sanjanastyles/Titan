@@ -2,7 +2,7 @@ import Conversation from '../../model/conversationModel';
 import Message from '../../model/messageModel';
 import { getRecipientSocketId, io } from '../../src/app';
 
-async function sendMessage(req, res) {
+async function sendMessage (req, res) {
   try {
     const { recipientId, message } = req.body;
     const senderId = req.user;
@@ -42,7 +42,7 @@ async function sendMessage(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-async function getMessages(req, res) {
+async function getMessages (req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
   try {
@@ -60,7 +60,7 @@ async function getMessages(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-async function getConversations(req, res) {
+async function getConversations (req, res) {
   const userId = req.user._id;
   try {
     const conversations = await Conversation.find({ participants: userId }).populate({
