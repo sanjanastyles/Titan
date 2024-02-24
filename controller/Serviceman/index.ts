@@ -72,10 +72,13 @@ export const handleLogin = async (req: Request, res: Response): Promise<void> =>
     const { email, password } = req.body;
     const user = await SERVICEMAN_SIGNUP_MODEL.findOne({ email });
     if (user && user.password === password) {
-      await new ONLINEUSER_MODEL({
-        userId: user._id,
-        isServiceMan: user.isServiceman,
-      }).save();
+      const alreadyloggedin = await ONLINEUSER_MODEL.findOne({ userId: user._id });
+      if (!alreadyloggedin) {
+        await new ONLINEUSER_MODEL({
+          userId: user._id,
+          isServiceMan: user.isServiceman,
+        }).save();
+      }
       res.status(200).json({ code: 200, msg: 'Success', data: user });
     } else {
       res.status(401).json({ code: 401, msg: 'Invalid credentials', data: {} });
