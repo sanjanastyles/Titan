@@ -1,12 +1,11 @@
-import Conversation from '../model/conversationModel';
-// import Message from '../model/messageModel.js';
-import Message from '../model/messageModel';
-import { getRecipientSocketId, io } from '../src/app';
-// import { v2 as cloudinary } from 'cloudinary';
-async function sendMessage(req, res) {
+import Conversation from '../../model/conversationModel';
+import Message from '../../model/messageModel';
+import { getRecipientSocketId, io } from '../../src/app';
+
+async function sendMessage (req, res) {
   try {
     const { recipientId, message } = req.body;
-    // let { img } = req.body;
+    console.log('FFF', message);
     const senderId = req.user;
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] },
@@ -21,10 +20,6 @@ async function sendMessage(req, res) {
       });
       await conversation.save();
     }
-    // if (img) {
-    //   const uploadedResponse = await cloudinary.uploader.upload(img);
-    //   img = uploadedResponse.secure_url;
-    // }
     const newMessage = new Message({
       conversationId: conversation._id,
       sender: senderId,
@@ -41,14 +36,15 @@ async function sendMessage(req, res) {
     ]);
     const recipientSocketId = getRecipientSocketId(recipientId);
     if (recipientSocketId) {
-      io.to(recipientSocketId).emit('newMessage', newMessage);
+      // io.to(recipientSocketId).emit('newMessage', newMessage);
+      io.emit('newMessage', newMessage);
     }
     res.status(201).json(newMessage);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
-async function getMessages(req, res) {
+async function getMessages (req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
   try {
@@ -66,7 +62,7 @@ async function getMessages(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-async function getConversations(req, res) {
+async function getConversations (req, res) {
   const userId = req.user._id;
   try {
     const conversations = await Conversation.find({ participants: userId }).populate({
