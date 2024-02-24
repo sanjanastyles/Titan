@@ -5,6 +5,7 @@ import { getRecipientSocketId, io } from '../../src/app';
 async function sendMessage (req, res) {
   try {
     const { recipientId, message } = req.body;
+    console.log('FFF', message);
     const senderId = req.user;
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] },
@@ -35,14 +36,14 @@ async function sendMessage (req, res) {
     ]);
     const recipientSocketId = getRecipientSocketId(recipientId);
     if (recipientSocketId) {
-      io.to(recipientSocketId).emit('newMessage', newMessage);
+      // io.to(recipientSocketId).emit('newMessage', newMessage);
+      io.emit('newMessage', newMessage);
     }
     res.status(201).json(newMessage);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
-
 async function getMessages (req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
