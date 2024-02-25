@@ -14,6 +14,7 @@ import Message from '../model/messageModel';
 import Conversation from '../model/conversationModel';
 
 dotenv.config();
+
 class App {
   public app: Application;
   public io: SocketIOServer;
