@@ -14,7 +14,6 @@ import Message from '../model/messageModel';
 import Conversation from '../model/conversationModel';
 
 dotenv.config();
-
 class App {
   public app: Application;
   public io: SocketIOServer;
@@ -25,7 +24,7 @@ class App {
     this.server = http.createServer(this.app);
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: ['http://localhost:3000', '*'],
+        origin: ['*'],
         methods: ['GET', 'POST'],
       },
     });
