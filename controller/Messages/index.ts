@@ -8,17 +8,13 @@ async function sendMessage (req, res) {
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] },
     });
-
-    // If conversation doesn't exist, create a new one
     if (!conversation) {
-      const conversationUpdate = new Conversation({
+      conversation = new Conversation({
         participants: [senderId, recipientId],
         messages: [{ text: message, sender: senderId, senderName }],
       });
-      conversation = await conversationUpdate.save(); // Await the save operation
+      conversation = await conversation.save();
     }
-
-    // Create and save new message
     const newMessage = new Message({
       conversationId: conversation._id,
       sender: senderId,
@@ -26,26 +22,20 @@ async function sendMessage (req, res) {
       senderName,
     });
     await newMessage.save();
-
-    // Update existing conversation with the new message
     await Conversation.updateOne(
       { _id: conversation._id },
       { $push: { messages: { text: message, sender: senderId, senderName: senderName } } },
     );
-
-    // Emit new message event to recipient socket
-    const recipientSocketId = getRecipientSocketId(recipientId);
+    const recipientSocketId = getRecipientSocketId(conversation._id);
     if (recipientSocketId) {
       io.to(recipientSocketId).emit('newMessage', newMessage);
     }
-
     res.status(201).json(newMessage);
   } catch (error) {
     console.error('Error sending message:', error);
     res.status(500).json({ error: error.message });
   }
 }
-
 async function getMessages (req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
