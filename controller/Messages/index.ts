@@ -4,43 +4,35 @@ import { getRecipientSocketId, io } from '../../src/app';
 
 async function sendMessage (req, res) {
   try {
-    const { recipientId, message } = req.body;
-    console.log('FFF', message);
-    const senderId = req.user;
+    const { recipientId, message, senderId, senderName } = req.body;
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] },
     });
     if (!conversation) {
       conversation = new Conversation({
         participants: [senderId, recipientId],
-        lastMessage: {
-          text: message,
-          sender: senderId,
-        },
+        messages: [{ text: message, sender: senderId, senderName }],
       });
-      await conversation.save();
+      conversation = await conversation.save();
     }
     const newMessage = new Message({
       conversationId: conversation._id,
       sender: senderId,
       text: message,
+      senderName,
     });
-    await Promise.all([
-      newMessage.save(),
-      conversation.updateOne({
-        lastMessage: {
-          text: message,
-          sender: senderId,
-        },
-      }),
-    ]);
-    const recipientSocketId = getRecipientSocketId(recipientId);
+    await newMessage.save();
+    await Conversation.updateOne(
+      { _id: conversation._id },
+      { $push: { messages: { text: message, sender: senderId, senderName: senderName } } },
+    );
+    const recipientSocketId = getRecipientSocketId(conversation._id);
     if (recipientSocketId) {
-      // io.to(recipientSocketId).emit('newMessage', newMessage);
-      io.emit('newMessage', newMessage);
+      io.to(recipientSocketId).emit('newMessage', newMessage);
     }
     res.status(201).json(newMessage);
   } catch (error) {
+    console.error('Error sending message:', error);
     res.status(500).json({ error: error.message });
   }
 }
@@ -63,19 +55,10 @@ async function getMessages (req, res) {
   }
 }
 async function getConversations (req, res) {
-  const userId = req.user._id;
+  const { participants } = req.body;
   try {
-    const conversations = await Conversation.find({ participants: userId }).populate({
-      path: 'participants',
-      select: 'username profilePic',
-    });
-    // remove the current user from the participants array
-    conversations.forEach((conversation) => {
-      conversation.participants = conversation.participants.filter(
-        (participant) => participant._id.toString() !== userId.toString(),
-      );
-    });
-    res.status(200).json(conversations);
+    const convo = await Conversation.find({ participants: { $all: participants } });
+    res.status(200).json(convo);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

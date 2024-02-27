@@ -201,7 +201,6 @@ export const handleForgotPassword = async (req: Request, res: Response): Promise
 };
 export const handleOnline = async (req: Request, res: Response) => {
   const { id, isServiceMan } = req.query;
-  console.log(id, isServiceMan);
   let user;
   try {
     if (!id) {
@@ -227,6 +226,16 @@ export const handleOffline = async (req: Request, res: Response) => {
   let user;
   try {
     user = await ONLINEUSER_MODEL.findOneAndDelete({ userId: id });
+    if (!user) return res.status(404).json({ code: 404, error: 'User not found' });
+    return res.status(200).json({ code: 200, message: 'Succes' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+export const handleLogOut = async (req: Request, res: Response) => {
+  const { id } = req.query;
+  try {
+    const user = await ONLINEUSER_MODEL.findOneAndDelete({ userId: id });
     if (!user) return res.status(404).json({ code: 404, error: 'User not found' });
     return res.status(200).json({ code: 200, message: 'Succes' });
   } catch (err) {
