@@ -11,6 +11,6 @@ export default function dbInit () {
     socketTimeoutMS: 45000, // Close soccreateCustomerkets after 45 seconds of inactivity
     family: 4, // Use IPv4, skip trying IPv6
   };
-  const url = process.env['MONGO_URI'] ?? '';
+    const url = process.env['MONGO_URI'] ?? '';
   mongoose.connect(url, options).then(() => console.log('databse connected'));
 }
