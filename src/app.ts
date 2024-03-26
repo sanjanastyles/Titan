@@ -87,7 +87,6 @@ class App {
 
   public emitMessageToRecipient(recipientId: string, message: any): void {
     const recipientSocketId = this.getRecipientSocketId(recipientId);
-    console.log(recipientSocketId , this.userSocketMap, message);
     
     if (recipientSocketId) {
       this.io.to(recipientSocketId).emit('newMessage', message);

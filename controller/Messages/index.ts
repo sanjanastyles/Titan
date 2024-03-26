@@ -29,7 +29,7 @@ import { emitMessageToRecipient, getRecipientSocketId, io } from '../../src/app'
 //       { $push: { messages: { text: message, sender: senderId, senderName: senderName } } },
 //     );
 //     const recipientSocketId = getRecipientSocketId(conversation.bookingId);
-    
+
 //     if (recipientSocketId) {
 //       io.to(recipientSocketId).emit('newMessage', newMessage);
 //     }
@@ -42,14 +42,14 @@ import { emitMessageToRecipient, getRecipientSocketId, io } from '../../src/app'
 
 async function sendMessage(req, res) {
   try {
-    const { recipientId, message, senderId, senderName, bookingId } = req.body;
+    const { recipientId, message, senderId, senderName, bookingId, participant } = req.body;
     let conversation = await Conversation.findOne({
-      bookingId: bookingId,
+      participants: { $all: [participant.c, participant.s] },
     });
     if (!conversation) {
       conversation = new Conversation({
         bookingId: bookingId,
-        participants: [senderId, recipientId],
+        participants: [participant.c, participant.s],
         messages: [{ text: message, sender: senderId, senderName }],
       });
       conversation = await conversation.save();
@@ -65,9 +65,10 @@ async function sendMessage(req, res) {
       { _id: conversation._id },
       { $push: { messages: { text: message, sender: senderId, senderName: senderName } } },
     );
-    
+
     // Emit message to recipient
-    emitMessageToRecipient(bookingId, newMessage);
+    const id = senderId === participant.c ? participant.s : participant.c;
+    emitMessageToRecipient(id, newMessage);
 
     res.status(201).json(newMessage);
   } catch (error) {
@@ -78,11 +79,11 @@ async function sendMessage(req, res) {
 
 
 async function getConversations(req, res) {
-  const { bookingId } = req.body;
-  
+  const { participant } = req.body;
   try {
-    const convo = await Conversation.find({ bookingId });
-    
+    const convo = await Conversation.find({
+      participants: { $all: [participant.c, participant.s] },
+    });
     res.status(200).json(convo);
   } catch (error) {
     res.status(500).json({ error: error.message });
