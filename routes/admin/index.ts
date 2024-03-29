@@ -1,6 +1,5 @@
 import express, { Router } from 'express';
 import { adminController } from '../../controller';
-import { SERVICE_MODEL } from '../../model';
 
 class AdminController {
   private router: Router;
@@ -15,19 +14,19 @@ class AdminController {
     this.router.post('/create/service', adminController.handleAddService);
     this.router.post('/create/admin', adminController.handleCreateAdmin);
     this.router.post('/block', adminController.handleBlock);
-    this.router.get('/abc', async (_, res) => {
-      const data = await SERVICE_MODEL.find();
-      res.status(200).json({ c: 200, d: data });
-    });
+    //   this.router.get('/abc', async (_, res) => {
+    //     const data = await SERVICE_MODEL.find();
+    //     res.status(200).json({ c: 200, d: data });
+    //   });
 
-    this.router.post('/xyz', async (_, res) => {
-      const newService = new SERVICE_MODEL({
-        serviceName: 'name',
-        serviceId: 'keyWord',
-      });
-      await newService.save();
-      res.status(200).json({ c: 200, d: newService });
-    });
+    //   this.router.post('/xyz', async (_, res) => {
+    //     const newService = new SERVICE_MODEL({
+    //       serviceName: 'name',
+    //       serviceId: 'keyWord',
+    //     });
+    //     await newService.save();
+    //     res.status(200).json({ c: 200, d: newService });
+    //   });
   }
 
   public getRouter (): Router {
