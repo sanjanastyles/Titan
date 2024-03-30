@@ -4,6 +4,16 @@
 - Encrypt Stuff(password and stuff)
 - secure endpoints
 
+## Env Format
+
+```Js
+PORT = 8080
+MONGO_URI = *********************************
+# MONGO_DOCKER_URI=mongodb://admin:admin@localhost:27017/
+JWT_SECRET = "Some_secret_needs_to_be_decided" //Pls dont add the secret in the Env
+STRIPE_SECRET_KEY="***************************"
+```
+
 ## Backend End
 
 ### Structure
