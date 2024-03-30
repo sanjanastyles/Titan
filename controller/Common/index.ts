@@ -180,11 +180,11 @@ export const handleBooking = async (req: Request, res: Response): Promise<void> 
   }
 };
 export const handleContactForm = async (req: Request, res: Response): Promise<void> => {
-  const { user_email, user_name, message } = req.body;
+  const { userEmail, userName, message } = req.body;
   try {
     const createContact = new CONTACT_MODEL({
-      email: user_email,
-      name: user_name,
+      email: userEmail,
+      name: userName,
       message,
     });
     await createContact.save();

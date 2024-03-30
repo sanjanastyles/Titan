@@ -68,10 +68,13 @@ export const handleServiceManService = async (req: Request, res: Response): Prom
     res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
   }
 };
+
 export const handleLogin = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+    const admin = await ADMIN_MODEL.findOne({ email });
     const user = await SERVICEMAN_SIGNUP_MODEL.findOne({ email });
+
     if (user && user.password === password) {
       const alreadyloggedin = await ONLINEUSER_MODEL.findOne({ userId: user._id });
       if (!alreadyloggedin) {
@@ -80,19 +83,26 @@ export const handleLogin = async (req: Request, res: Response): Promise<void> =>
           isServiceMan: user.isServiceman,
         }).save();
       }
-      res.status(200).json({ code: 200, msg: 'Success', data: user });
-    } else {
-      const user = await ADMIN_MODEL.findOne({ email });
-      if (user && user.password === password) {
-        res.status(200).json({ code: 200, msg: 'Success', data: user });
-      } else {
-        res.status(401).json({ code: 401, msg: 'Invalid credentials', data: {} });
-      }
+      const data = { ...user["_doc"], type: 'user' }
+
+      res.status(200).json({ code: 200, msg: 'Success', data });
+      return;
     }
+
+
+    if (admin && admin.password === password) {
+      const data = { ...admin["_doc"], type: 'admin' }
+      console.log(data, "_");
+      
+      res.status(200).json({ code: 200, msg: 'Success', data });
+      return;
+    }
+    res.status(401).json({ code: 401, msg: 'Invalid credentials', data: {} });
   } catch (err) {
     res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
   }
 };
+
 export const handleSignup = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, phone, email, address, password, selectedServices, isProfessional } = req.body;
@@ -141,51 +151,87 @@ export const handleProfilePost = (req: Request, res: Response): void => {
   res.send({ KEY: 'profile_post', TOKEN: 'token' });
 };
 export const handleSeeReviews = async (req: Request, res: Response) => {
+  // try {
+  //   const { id } = req.body;
+  //   const pipeline: any[] = [
+  //     {
+  //       $lookup: {
+  //         from: 'servicemen',
+  //         localField: 'reviewerId',
+  //         foreignField: '_id',
+  //         as: 'user',
+  //       },
+  //     },
+  //     { $unwind: '$user' },
+  //     { $addFields: { 'user.id': '$_id' } },
+  //     {
+  //       $project: {
+  //         _id: 0,
+  //         id: '$user.id',
+  //         name: '$user.name',
+  //         review: '$$ROOT',
+  //       },
+  //     },
+  //   ];
+  //   pipeline.push({
+  //     $lookup: {
+  //       from: 'services',
+  //       localField: 'review.associatedJob',
+  //       foreignField: '_id',
+  //       as: 'booking',
+  //     },
+  //   });
+  //   pipeline.push({ $unwind: '$service' });
+  //   pipeline.push({
+  //     $addFields: { 'service.id': '$review.associatedJob' },
+  //   });
+  //   pipeline.push({ $project: { 'review.associatedJob': 0 } });
+
+  //   const response = await REVIEW_MODEL.aggregate(pipeline);
+  //   res.status(200).json({
+  //     code: 200,
+  //     msg: 'Fetched Successfully',
+  //     data: response,
+  //   });
+  // }
+
   try {
-    const { isServiceman } = req.body;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pipeline: any[] = [
-      {
-        $lookup: {
-          from: isServiceman ? 'servicemen' : 'customers',
-          localField: isServiceman ? 'associatedServiceman' : 'reviewerId',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      { $addFields: { 'user.id': '$_id' } },
-      {
-        $project: {
-          _id: 0,
-          id: '$user.id',
-          name: '$user.name',
-          review: '$$ROOT',
-        },
-      },
-    ];
-    // if (isServiceman) {
-    pipeline.push({
-      $lookup: {
-        from: 'services',
-        localField: 'review.associatedJob',
-        foreignField: '_id',
-        as: 'service',
-      },
-    });
-    pipeline.push({ $unwind: '$service' });
-    pipeline.push({
-      $addFields: { 'service.id': '$review.associatedJob' },
-    });
-    pipeline.push({ $project: { 'review.associatedJob': 0 } });
-    // }
-    const response = await REVIEW_MODEL.aggregate(pipeline);
+    const { id } = req.query;
+
+    // Find documents matching the reviewerId
+    const reviews = await REVIEW_MODEL.find({ reviewerId: id });
+
+    // Iterate over each review to perform additional actions
+    const processedReviews = await Promise.all(
+      reviews.map(async (review) => {
+        // Find the corresponding serviceman
+        const serviceman = await SERVICEMAN_SIGNUP_MODEL.findById(review.reviewerId);
+
+        // Find the associated service
+        const booking = await HISTROY_MODEL.findById(review.associatedJob);
+
+        // Construct the processed review object
+        const processedReview = {
+          id: serviceman._id, // Assuming serviceman._id is the user ID
+          name: serviceman.name,
+          review: review,
+          booking: booking,
+        };
+
+        return processedReview;
+      }),
+    );
+
     res.status(200).json({
       code: 200,
       msg: 'Fetched Successfully',
-      data: response,
+      data: processedReviews,
     });
-  } catch (err) {
-    res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      code: 500,
+      msg: 'Internal Server Error',
+    });
   }
 };

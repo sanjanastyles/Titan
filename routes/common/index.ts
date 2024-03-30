@@ -22,7 +22,7 @@ class CommonController {
     this.router.get('/offline', commonController.handleOffline);
     this.router.get('/logout', commonController.handleLogOut);
     this.router.post('/forgotpassword', commonController.handleForgotPassword);
-    
+
     this.router.post('/get/conversation', messageController.getConversations);
     this.router.post('/post/message', messageController.sendMessage);
   }

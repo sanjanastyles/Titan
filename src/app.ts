@@ -3,6 +3,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
+import { Server as SocketIOServer, Socket } from 'socket.io';
 import morgan from 'morgan';
 import fs from 'fs';
 import dbInit from '../dbConnection';
@@ -10,18 +11,18 @@ import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
 import CustomerController from '../routes/customers';
 import AdminController from '../routes/admin';
-import Message from '../model/messageModel';
-import Conversation from '../model/conversationModel';
 
 dotenv.config();
+
 
 class App {
   public app: Application;
   public server: http.Server;
   public io: SocketIOServer;
+  public io: SocketIOServer;
   private userSocketMap: { [userId: string]: string };
 
-  constructor() {
+  constructor () {
     this.app = express();
     this.server = http.createServer(this.app);
     this.io = new SocketIOServer(this.server, {
@@ -59,7 +60,7 @@ class App {
     this.app.use('/admin', adminController.getRouter());
   }
 
-  private initializeSocketIO(): void {
+  private initializeSocketIO (): void {
     this.io.on('connection', (socket: Socket) => {
       const userId = socket.handshake.query.userId as string;
       if (userId) {
@@ -77,19 +78,18 @@ class App {
   private startServer(): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
-    this.server.listen(PORT, () => {
-    });
+    this.server.listen(PORT, () => {});
   }
 
   public getRecipientSocketId(recipientId: string): string | undefined {
     return this.userSocketMap[recipientId];
   }
 
-  public emitMessageToRecipient(recipientId: string, message: any): void {
+  public emitMessageToRecipient (recipientId: string, message, bookingId: string): void {
     const recipientSocketId = this.getRecipientSocketId(recipientId);
-    
+
     if (recipientSocketId) {
-      this.io.to(recipientSocketId).emit('newMessage', message);
+      this.io.to(bookingId).emit('newMessage', message);
     }
   }
 }

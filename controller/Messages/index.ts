@@ -1,6 +1,6 @@
 import Conversation from '../../model/conversationModel';
 import Message from '../../model/messageModel';
-import { emitMessageToRecipient, getRecipientSocketId, io } from '../../src/app';
+import { emitMessageToRecipient } from '../../src/app';
 
 // async function sendMessage(req, res) {
 //   try {
@@ -42,12 +42,15 @@ import { emitMessageToRecipient, getRecipientSocketId, io } from '../../src/app'
 
 async function sendMessage(req, res) {
   try {
-    const { recipientId, message, senderId, senderName, bookingId, participant } = req.body;
+    const { message, senderId, senderName, bookingId, participant } = req.body;
     let conversation = await Conversation.findOne({
+      participants: { $all: [participant.c, participant.s] },
       participants: { $all: [participant.c, participant.s] },
     });
     if (!conversation) {
       conversation = new Conversation({
+        bookingId: bookingId,
+        participants: [participant.c, participant.s],
         bookingId: bookingId,
         participants: [participant.c, participant.s],
         messages: [{ text: message, sender: senderId, senderName }],
@@ -56,6 +59,7 @@ async function sendMessage(req, res) {
     }
     const newMessage = new Message({
       conversationId: conversation._id,
+      // bookingId: bookingId,
       sender: senderId,
       text: message,
       senderName,
@@ -68,7 +72,7 @@ async function sendMessage(req, res) {
 
     // Emit message to recipient
     const id = senderId === participant.c ? participant.s : participant.c;
-    emitMessageToRecipient(id, newMessage);
+    emitMessageToRecipient(id, newMessage, bookingId);
 
     res.status(201).json(newMessage);
   } catch (error) {
@@ -77,8 +81,7 @@ async function sendMessage(req, res) {
   }
 }
 
-
-async function getConversations(req, res) {
+async function getConversations (req, res) {
   const { participant } = req.body;
   try {
     const convo = await Conversation.find({
@@ -90,8 +93,7 @@ async function getConversations(req, res) {
   }
 }
 
-
-async function getMessages(req, res) {
+async function getMessages (req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
   try {
