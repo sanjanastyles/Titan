@@ -3,7 +3,6 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { Server as SocketIOServer, Socket } from 'socket.io';
 import morgan from 'morgan';
 import fs from 'fs';
 import dbInit from '../dbConnection';
@@ -18,7 +17,6 @@ dotenv.config();
 class App {
   public app: Application;
   public server: http.Server;
-  public io: SocketIOServer;
   public io: SocketIOServer;
   private userSocketMap: { [userId: string]: string };
 
@@ -89,7 +87,7 @@ class App {
     const recipientSocketId = this.getRecipientSocketId(recipientId);
 
     if (recipientSocketId) {
-      this.io.to(bookingId).emit('newMessage', message);
+      this.io.emit('newMessage', message);
     }
   }
 }
