@@ -4,7 +4,7 @@ import { emitMessageToRecipient } from '../../src/app';
 
 async function sendMessage (req, res) {
   try {
-    const { recipientId, message, senderId, senderName, bookingId, participant } = req.body;
+    const { message, senderId, senderName, bookingId, participant } = req.body;
     let conversation = await Conversation.findOne({
       participants: { $all: [participant.c, participant.s] },
     });

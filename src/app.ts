@@ -82,7 +82,7 @@ class App {
     return this.userSocketMap[recipientId];
   }
 
-  public emitMessageToRecipient (recipientId: string, message: any, bookingId: any): void {
+  public emitMessageToRecipient (recipientId: string, message, bookingId: string): void {
     const recipientSocketId = this.getRecipientSocketId(recipientId);
 
     if (recipientSocketId) {
