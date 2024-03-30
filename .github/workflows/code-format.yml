@@ -2,25 +2,17 @@ name: Format Code
 on:
   pull_request:
     branches:
-      - main
+    - main
 jobs:
   format-code:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: npm install
-      - name: Format code with Prettier
-        run: npm run format
-      - name: Remove console logs
-        run: |
-          find src \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec sed -i '/console.log/d' {} +
-      - name: Commit changes
-        run: |
-          git config --global user.name "sanjanastyles"
-          git config --global user.email "sanjana2842002@gmai.com"
-          git add .
-          git commit -m "Remove console logs"
-          git push origin HEAD:main
-          git push https://$WORKFLOW_FORMT@github.com/sanjanastyles/Titan.git HEAD:main
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: npm install
+    - name: Format code with Prettier
+      run: npm run format
+    - name: Remove console logs
+      run: |
+        find src \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec sed -i '/console.log/d' {} +
