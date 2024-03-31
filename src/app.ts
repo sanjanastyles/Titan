@@ -13,7 +13,6 @@ import AdminController from '../routes/admin';
 
 dotenv.config();
 
-
 class App {
   public app: Application;
   public server: http.Server;
@@ -36,7 +35,7 @@ class App {
     this.startServer();
   }
 
-  private initializeMiddleware(): void {
+  private initializeMiddleware (): void {
     this.app.use(express.json());
     this.app.use(cors());
     const logFormat = ':method :url :status - :response-time ms';
@@ -47,7 +46,7 @@ class App {
     );
   }
 
-  private initializeRoutes(): void {
+  private initializeRoutes (): void {
     const commonController = new CommonController();
     const serviceManController = new ServiceManController();
     const customerController = new CustomerController();
@@ -73,13 +72,13 @@ class App {
     });
   }
 
-  private startServer(): void {
+  private startServer (): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
     this.server.listen(PORT, () => {});
   }
 
-  public getRecipientSocketId(recipientId: string): string | undefined {
+  public getRecipientSocketId (recipientId: string): string | undefined {
     return this.userSocketMap[recipientId];
   }
 

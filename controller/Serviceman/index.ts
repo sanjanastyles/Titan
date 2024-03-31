@@ -83,17 +83,16 @@ export const handleLogin = async (req: Request, res: Response): Promise<void> =>
       //     isServiceMan: user.isServiceman,
       //   }).save();
       // }
-      const data = { ...user["_doc"], type: 'user' }
+      const data = { ...user['_doc'], type: 'user' };
 
       res.status(200).json({ code: 200, msg: 'Success', data });
       return;
     }
 
-
     if (admin && admin.password === password) {
-      const data = { ...admin["_doc"], type: 'admin' }
-      console.log(data, "_");
-      
+      const data = { ...admin['_doc'], type: 'admin' };
+      console.log(data, '_');
+
       res.status(200).json({ code: 200, msg: 'Success', data });
       return;
     }

@@ -40,7 +40,7 @@ import { emitMessageToRecipient } from '../../src/app';
 //   }
 // }
 
-async function sendMessage(req, res) {
+async function sendMessage (req, res) {
   try {
     const { message, senderId, senderName, bookingId, participant } = req.body;
     let conversation = await Conversation.findOne({
