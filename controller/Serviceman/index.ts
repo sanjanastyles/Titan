@@ -76,24 +76,23 @@ export const handleLogin = async (req: Request, res: Response): Promise<void> =>
     const user = await SERVICEMAN_SIGNUP_MODEL.findOne({ email });
 
     if (user && user.password === password) {
-      const alreadyloggedin = await ONLINEUSER_MODEL.findOne({ userId: user._id });
-      if (!alreadyloggedin) {
-        await new ONLINEUSER_MODEL({
-          userId: user._id,
-          isServiceMan: user.isServiceman,
-        }).save();
-      }
-      const data = { ...user["_doc"], type: 'user' }
+      // const alreadyloggedin = await ONLINEUSER_MODEL.findOne({ userId: user._id });
+      // if (!alreadyloggedin) {
+      //   await new ONLINEUSER_MODEL({
+      //     userId: user._id,
+      //     isServiceMan: user.isServiceman,
+      //   }).save();
+      // }
+      const data = { ...user['_doc'], type: 'user' };
 
       res.status(200).json({ code: 200, msg: 'Success', data });
       return;
     }
 
-
     if (admin && admin.password === password) {
-      const data = { ...admin["_doc"], type: 'admin' }
-      console.log(data, "_");
-      
+      const data = { ...admin['_doc'], type: 'admin' };
+      console.log(data, '_');
+
       res.status(200).json({ code: 200, msg: 'Success', data });
       return;
     }

@@ -3,7 +3,6 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { Server as SocketIOServer, Socket } from 'socket.io';
 import morgan from 'morgan';
 import fs from 'fs';
 import dbInit from '../dbConnection';
@@ -14,11 +13,9 @@ import AdminController from '../routes/admin';
 
 dotenv.config();
 
-
 class App {
   public app: Application;
   public server: http.Server;
-  public io: SocketIOServer;
   public io: SocketIOServer;
   private userSocketMap: { [userId: string]: string };
 
@@ -38,7 +35,7 @@ class App {
     this.startServer();
   }
 
-  private initializeMiddleware(): void {
+  private initializeMiddleware (): void {
     this.app.use(express.json());
     this.app.use(cors());
     const logFormat = ':method :url :status - :response-time ms';
@@ -49,7 +46,7 @@ class App {
     );
   }
 
-  private initializeRoutes(): void {
+  private initializeRoutes (): void {
     const commonController = new CommonController();
     const serviceManController = new ServiceManController();
     const customerController = new CustomerController();
@@ -75,13 +72,13 @@ class App {
     });
   }
 
-  private startServer(): void {
+  private startServer (): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
     this.server.listen(PORT, () => {});
   }
 
-  public getRecipientSocketId(recipientId: string): string | undefined {
+  public getRecipientSocketId (recipientId: string): string | undefined {
     return this.userSocketMap[recipientId];
   }
 
@@ -89,7 +86,7 @@ class App {
     const recipientSocketId = this.getRecipientSocketId(recipientId);
 
     if (recipientSocketId) {
-      this.io.to(bookingId).emit('newMessage', message);
+      this.io.emit('newMessage', message);
     }
   }
 }

@@ -40,17 +40,14 @@ import { emitMessageToRecipient } from '../../src/app';
 //   }
 // }
 
-async function sendMessage(req, res) {
+async function sendMessage (req, res) {
   try {
     const { message, senderId, senderName, bookingId, participant } = req.body;
     let conversation = await Conversation.findOne({
       participants: { $all: [participant.c, participant.s] },
-      participants: { $all: [participant.c, participant.s] },
     });
     if (!conversation) {
       conversation = new Conversation({
-        bookingId: bookingId,
-        participants: [participant.c, participant.s],
         bookingId: bookingId,
         participants: [participant.c, participant.s],
         messages: [{ text: message, sender: senderId, senderName }],
