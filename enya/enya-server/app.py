@@ -12,10 +12,10 @@ app = Flask(__name__)
 CORS(app) 
 
 lemmatizer = WordNetLemmatizer()
-intents = json.loads(open('C:\\Users\\bonam\\pyy\\model\\intents.json').read())
-words = pickle.load(open('C:\\Users\\bonam\\pyy\\model\\words.pkl', 'rb'))
-classes = pickle.load(open('C:\\Users\\bonam\\pyy\\model\\classes.pkl', 'rb'))
-model = load_model('C:\\Users\\bonam\\pyy\\model\\chatbot_model.h5')
+intents = json.loads(open(r'C:\Users\bonam\titan\Titan\enya\enya-model\intents.json').read())
+words = pickle.load(open(r'C:\Users\bonam\titan\Titan\enya\enya-model\words.pkl', 'rb'))
+classes = pickle.load(open(r'C:\Users\bonam\titan\Titan\enya\enya-model\classes.pkl', 'rb'))
+model = load_model(r'C:\Users\bonam\titan\Titan\enya\enya-model\chatbot.h5')
 
 def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)

@@ -77,7 +77,7 @@ class App {
 
   private startServer (): void {
     const PORT = Number(process.env.PORT) || 8000;
-    dbInit();
+    // dbInit();
     this.server.listen(PORT, () => {
       console.log('STARTED');
     });
