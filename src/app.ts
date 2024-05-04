@@ -10,6 +10,7 @@ import CommonController from '../routes/common';
 import ServiceManController from '../routes/servicemam';
 import CustomerController from '../routes/customers';
 import AdminController from '../routes/admin';
+import ChatbotController from '../routes/enya';
 
 dotenv.config();
 
@@ -51,10 +52,12 @@ class App {
     const serviceManController = new ServiceManController();
     const customerController = new CustomerController();
     const adminController = new AdminController();
+    const chatbotController = new ChatbotController();
     this.app.use('/common', commonController.getRouter());
     this.app.use('/serviceman', serviceManController.getRouter());
     this.app.use('/customer', customerController.getRouter());
     this.app.use('/admin', adminController.getRouter());
+    this.app.use('/bot', chatbotController.getRouter());
   }
 
   private initializeSocketIO (): void {
@@ -75,8 +78,35 @@ class App {
   private startServer (): void {
     const PORT = Number(process.env.PORT) || 8000;
     dbInit();
-    this.server.listen(PORT, () => {});
+    this.server.listen(PORT, () => {
+      console.log('STARTED');
+    });
   }
+
+  // private startServer(): void {
+  //   const PORT = Number(process.env.PORT) || 8000;
+  //   // dbInit();
+
+  //   const pythonProcess = spawn('python', ['C:\\Users\\bonam\\titan\\Titan\\enya\\enya-server\\app.py']);
+
+  //   pythonProcess.on('error', (error) => {
+  //     console.error('Error starting Python process:', error);
+  //   });
+  //   pythonProcess.on('data', (error) => {
+  //     console.error("dd");
+  //   });
+
+  //   pythonProcess.on('exit', (code, signal) => {
+  //     if (code !== 0) {
+  //       console.error(`Python process exited with code ${code} and signal ${signal}`);
+  //     } else {
+  //       console.log('Python process exited successfully');
+  //     }
+  //   });
+  //   this.server.listen(PORT, () => {
+  //     console.log('Server started successfully');
+  //   });
+  // }
 
   public getRecipientSocketId (recipientId: string): string | undefined {
     return this.userSocketMap[recipientId];

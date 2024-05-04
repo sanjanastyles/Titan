@@ -6,8 +6,10 @@ import numpy as np
 import nltk
 from nltk.stem import WordNetLemmatizer
 from keras.models import load_model
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app) 
 
 lemmatizer = WordNetLemmatizer()
 intents = json.loads(open('C:\\Users\\bonam\\pyy\\model\\intents.json').read())
