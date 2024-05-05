@@ -40,7 +40,7 @@ import { emitMessageToRecipient } from '../../src/app';
 //   }
 // }
 
-async function sendMessage (req, res) {
+async function sendMessage(req, res) {
   try {
     const { message, senderId, senderName, bookingId, participant } = req.body;
     let conversation = await Conversation.findOne({
@@ -78,7 +78,7 @@ async function sendMessage (req, res) {
   }
 }
 
-async function getConversations (req, res) {
+async function getConversations(req, res) {
   const { participant } = req.body;
   try {
     const convo = await Conversation.find({
@@ -90,7 +90,7 @@ async function getConversations (req, res) {
   }
 }
 
-async function getMessages (req, res) {
+async function getMessages(req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
   try {

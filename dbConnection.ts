@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export default function dbInit () {
+export default function dbInit() {
   const options = {
     autoIndex: false, // Don't build indexes
     maxPoolSize: 10, // Maintain up to 10 socket connections

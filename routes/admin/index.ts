@@ -3,12 +3,12 @@ import { adminController } from '../../controller';
 
 class AdminController {
   private router: Router;
-  constructor () {
+  constructor() {
     this.router = express.Router();
     this.initializeRoutes();
   }
 
-  private initializeRoutes (): void {
+  private initializeRoutes(): void {
     this.router.get('/users', adminController.handleAllUsers);
     this.router.get('/get/admin', adminController.handleAllAdmin);
     this.router.post('/create/service', adminController.handleAddService);
@@ -29,7 +29,7 @@ class AdminController {
     //   });
   }
 
-  public getRouter (): Router {
+  public getRouter(): Router {
     return this.router;
   }
 }

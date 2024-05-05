@@ -11,16 +11,38 @@ import ServiceManController from '../routes/servicemam';
 import CustomerController from '../routes/customers';
 import AdminController from '../routes/admin';
 import ChatbotController from '../routes/enya';
+import { spawn } from 'child_process';
+
+function spawnPythonServer() {
+  const venvScript = process.platform === 'win32' ? 'activate.bat' : 'activate';
+  const basePath = __dirname.split('/');
+  const scriptPath = basePath.slice(0, basePath.length - 1).join('/');
+
+  const pythonProcess = spawn('bash', [
+    '-c',
+    `source ${scriptPath}/enya/enya-model/enya/bin/${venvScript} && python ${scriptPath}/enya/enya-server/app.py`,
+  ]);
+
+  pythonProcess.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  pythonProcess.on('close', (code) => {
+    console.log(`Python script exited with code ${code}`);
+  });
+}
 
 dotenv.config();
-
 class App {
   public app: Application;
   public server: http.Server;
   public io: SocketIOServer;
   private userSocketMap: { [userId: string]: string };
-
-  constructor () {
+  constructor() {
     this.app = express();
     this.server = http.createServer(this.app);
     this.io = new SocketIOServer(this.server, {
@@ -36,7 +58,7 @@ class App {
     this.startServer();
   }
 
-  private initializeMiddleware (): void {
+  private initializeMiddleware(): void {
     this.app.use(express.json());
     this.app.use(cors());
     const logFormat = ':method :url :status - :response-time ms';
@@ -47,7 +69,7 @@ class App {
     );
   }
 
-  private initializeRoutes (): void {
+  private initializeRoutes(): void {
     const commonController = new CommonController();
     const serviceManController = new ServiceManController();
     const customerController = new CustomerController();
@@ -60,7 +82,7 @@ class App {
     this.app.use('/bot', chatbotController.getRouter());
   }
 
-  private initializeSocketIO (): void {
+  private initializeSocketIO(): void {
     this.io.on('connection', (socket: Socket) => {
       const userId = socket.handshake.query.userId as string;
       if (userId) {
@@ -75,44 +97,22 @@ class App {
     });
   }
 
-  private startServer (): void {
+  private startServer(): void {
     const PORT = Number(process.env.PORT) || 8000;
-    // dbInit();
+    dbInit();
+    spawnPythonServer();
     this.server.listen(PORT, () => {
       console.log('STARTED');
     });
   }
 
-  // private startServer(): void {
-  //   const PORT = Number(process.env.PORT) || 8000;
-  //   // dbInit();
 
-  //   const pythonProcess = spawn('python', ['C:\\Users\\bonam\\titan\\Titan\\enya\\enya-server\\app.py']);
 
-  //   pythonProcess.on('error', (error) => {
-  //     console.error('Error starting Python process:', error);
-  //   });
-  //   pythonProcess.on('data', (error) => {
-  //     console.error("dd");
-  //   });
-
-  //   pythonProcess.on('exit', (code, signal) => {
-  //     if (code !== 0) {
-  //       console.error(`Python process exited with code ${code} and signal ${signal}`);
-  //     } else {
-  //       console.log('Python process exited successfully');
-  //     }
-  //   });
-  //   this.server.listen(PORT, () => {
-  //     console.log('Server started successfully');
-  //   });
-  // }
-
-  public getRecipientSocketId (recipientId: string): string | undefined {
+  public getRecipientSocketId(recipientId: string): string | undefined {
     return this.userSocketMap[recipientId];
   }
 
-  public emitMessageToRecipient (recipientId: string, message, bookingId: string): void {
+  public emitMessageToRecipient(recipientId: string, message, bookingId: string): void {
     const recipientSocketId = this.getRecipientSocketId(recipientId);
 
     if (recipientSocketId) {

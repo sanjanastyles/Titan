@@ -7,15 +7,25 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from keras.models import load_model
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app) 
 
+
+
+# print("Base path:", base_path)
+
+base_path = os.path.dirname(os.path.abspath(__file__))
+script = base_path.split("/")[:-1]
+script_path = '/'.join(script)  
+print()
+
 lemmatizer = WordNetLemmatizer()
-intents = json.loads(open(r'../enya-model/intents.json').read())
-words = pickle.load(open(r'../enya-model/words.pkl', 'rb'))
-classes = pickle.load(open(r'../enya-model/classes.pkl', 'rb'))
-model = load_model(r'../enya-model/chatbot.h5')
+intents = json.loads(open(f'{script_path}/enya-model/intents.json').read())
+words = pickle.load(open(f'{script_path}/enya-model/words.pkl', 'rb'))
+classes = pickle.load(open(f'{script_path}/enya-model/classes.pkl', 'rb'))
+model = load_model(f'{script_path}/enya-model/chatbot.h5')
 
 def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)

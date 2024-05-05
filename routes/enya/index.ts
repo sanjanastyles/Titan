@@ -4,16 +4,16 @@ import http from 'http';
 class ChatbotController {
   private router: Router;
 
-  constructor () {
+  constructor() {
     this.router = express.Router();
     this.initializeRoutes();
   }
 
-  private initializeRoutes (): void {
+  private initializeRoutes(): void {
     this.router.post('/enya', this.handleChatbotRequest);
   }
 
-  private handleChatbotRequest (req: Request, res: Response): void {
+  private handleChatbotRequest(req: Request, res: Response): void {
     const chatbotUrl = 'http://localhost:8081/chatbot';
 
     const { msg } = req.body;
@@ -52,7 +52,7 @@ class ChatbotController {
     chatbotReq.end();
   }
 
-  public getRouter (): Router {
+  public getRouter(): Router {
     return this.router;
   }
 }
