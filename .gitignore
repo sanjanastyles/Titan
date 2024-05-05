@@ -5,3 +5,4 @@ dist/
 
 *.pkl
 *.h5
+enya/enya-model/enya/

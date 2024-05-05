@@ -9,7 +9,7 @@ from nltk.stem import WordNetLemmatizer
 
 lemmatizer = WordNetLemmatizer()
 
-intents = json.loads(open(r'C:\Users\bonam\titan\Titan\enya\enya-model\intents.json').read())
+intents = json.loads(open(r'./intents.json').read())
 
 words = []
 classes = []
