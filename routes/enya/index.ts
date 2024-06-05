@@ -14,8 +14,6 @@ class ChatbotController {
   }
 
   private handleChatbotRequest(req: Request, res: Response): void {
-    const chatbotUrl = 'http://localhost:8081/chatbot';
-
     const { msg } = req.body;
 
     const postData = JSON.stringify({ message: msg });

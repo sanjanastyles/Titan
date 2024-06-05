@@ -20,7 +20,7 @@ function spawnPythonServer() {
 
   const pythonProcess = spawn('bash', [
     '-c',
-    `source ${scriptPath}/enya/enya-model/enya/bin/${venvScript} && python ${scriptPath}/enya/enya-server/app.py`,
+    `source ${scriptPath}/enya/enya-venv/bin/${venvScript} && python ${scriptPath}/enya/enya-server/app.py`,
   ]);
 
   pythonProcess.stdout.on('data', (data) => {
@@ -105,8 +105,6 @@ class App {
       console.log('STARTED');
     });
   }
-
-
 
   public getRecipientSocketId(recipientId: string): string | undefined {
     return this.userSocketMap[recipientId];

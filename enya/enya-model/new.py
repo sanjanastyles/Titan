@@ -1,3 +1,5 @@
+
+
 import random
 import json
 import pickle
@@ -6,6 +8,9 @@ import tensorflow as tf
 
 import nltk
 from nltk.stem import WordNetLemmatizer
+
+
+#CHATBOT MODEL
 
 lemmatizer = WordNetLemmatizer()
 
@@ -68,3 +73,6 @@ model.save('chatbot.h5', hist)
 print('Done')
 
 
+
+
+#recommendation MODEL

@@ -42,8 +42,8 @@ export const deleteBooking = async (req: Request, res: Response) => {
 export const handleProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.query;
-    const [numberOfReviews, numberOfJobs, userData] = await Promise.all([
-      REVIEW_MODEL.countDocuments({ $or: [{ associatedServiceman: id }, { associatedJob: id }] }),
+    const [reviews, numberOfJobs, userData] = await Promise.all([
+      REVIEW_MODEL.find({ associatedServiceman: id }),
       HISTROY_MODEL.countDocuments({
         $or: [{ associatedServiceman: id }, { associatedJob: id }],
       }),
@@ -51,13 +51,19 @@ export const handleProfile = async (req: Request, res: Response): Promise<void> 
     ]);
     res.status(200).json({
       code: 200,
-      msg: 'Number of reviews found',
-      data: { numberOfReviews, numberOfJobs, userData: userData },
+      msg: 'Profile data found',
+      data: {
+        reviews,
+        numberOfJobs,
+        userData: userData,
+        numberOfReviews: reviews.length, // Add numberOfReviews key
+      },
     });
   } catch (err) {
-    res.send({ msg: 'Something went wrong', code: 412, error: err });
+    res.status(412).json({ msg: 'Something went wrong', code: 412, error: err });
   }
 };
+
 //   export const handleHistory = async (req: Request, res: Response): Promise<void> => {
 //     try {
 //       const { isServiceman, id } = req.query;

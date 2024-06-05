@@ -71,5 +71,20 @@ def chatbot():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/recommendation', methods=['POST'])
+def recommendation():
+    try:
+        data = request.json
+        message = data['message']
+        ints = predict_class(message)
+
+        res = get_response(ints, intents)
+        return jsonify({'response': res})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8081)
