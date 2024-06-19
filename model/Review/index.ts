@@ -24,7 +24,7 @@ const reviewSchema = new Schema(
     },
     associatedJob: {
       type: Schema.Types.ObjectId,
-      ref: 'service',
+      ref: 'history',
     },
   },
   {

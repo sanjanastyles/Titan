@@ -34,6 +34,10 @@ const serviceManSignup = new Schema(
     isServiceman: {
       type: String,
     },
+    city: {
+      type: String,
+      required: [true, 'City is  required'],
+    },
 
     isBlocked: {
       type: Boolean,

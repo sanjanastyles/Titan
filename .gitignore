@@ -2,3 +2,7 @@ node_modules/
 .env
 dist/
 *.log
+
+*.pkl
+*.h5
+enya/enya-venv/

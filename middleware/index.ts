@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 dotenv.config();
-export function auth (req, res, next) {
+export function auth(req, res, next) {
   const authHeader = req.headers.authorization;
   const accessTokenSecret = process.env['JWT_SECRET'] || '';
   if (authHeader) {

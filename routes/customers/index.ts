@@ -3,17 +3,17 @@ import { customerController } from '../../controller';
 
 class CustomerController {
   private router: Router;
-  constructor () {
+  constructor() {
     this.router = express.Router();
     this.initializeRoutes();
   }
 
-  private initializeRoutes (): void {
+  private initializeRoutes(): void {
     this.router.post('/review', customerController.handleReviewPost);
     this.router.get('/online/serviceman', customerController.getAllOnlineServiceMan);
   }
 
-  public getRouter (): Router {
+  public getRouter(): Router {
     return this.router;
   }
 }

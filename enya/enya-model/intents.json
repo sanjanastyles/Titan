@@ -1,0 +1,170 @@
+{
+  "intents": [
+    {
+      "tag": "plumbing",
+      "patterns": ["plumbing", "leak", "pipe"],
+      "responses": [
+        "Our expert plumbers can fix any plumbing issues you may have. Please provide your location so we can send someone over."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "electrician",
+      "patterns": ["electrician", "power", "outage"],
+      "responses": [
+        "Our electricians are available to help with any electrical problems. Let us know your address, and we'll send assistance right away."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "cleaning",
+      "patterns": ["cleaning", "house", "maid"],
+      "responses": [
+        "Our professional cleaners can tidy up your home in no time. Book a cleaning service now for a spotless house."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "carpentry",
+      "patterns": ["carpentry", "furniture", "repair"],
+      "responses": [
+        "Need help with furniture repair or carpentry work? Our skilled carpenters are here to assist you. Schedule a service today."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "painting",
+      "patterns": ["painting", "walls", "interior"],
+      "responses": [
+        "Looking to refresh your interiors with a new coat of paint? Our expert painters will transform your space. Book now!"
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "gardening",
+      "patterns": ["gardening", "lawn", "plants"],
+      "responses": [
+        "Want to spruce up your garden or maintain your lawn? Our experienced gardeners can help you achieve a beautiful outdoor space."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "beauty",
+      "patterns": ["beauty", "salon", "makeup"],
+      "responses": [
+        "Get pampered with our beauty and salon services. Book an appointment for a relaxing spa day or a makeover session."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "massage",
+      "patterns": ["massage", "therapist", "relaxation"],
+      "responses": [
+        "Stressed out? Treat yourself to a rejuvenating massage from our skilled therapists. Schedule a session for ultimate relaxation."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "pest_control",
+      "patterns": ["pest", "control", "insect"],
+      "responses": [
+        "Dealing with pests? Our pest control experts can help you get rid of unwanted insects and rodents. Contact us for a pest-free home."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "photographer",
+      "patterns": ["photographer", "event", "photoshoot"],
+      "responses": [
+        "Capture special moments with our professional photographers. Whether it's a wedding or a corporate event, we've got you covered."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "tutoring",
+      "patterns": ["tutor", "education", "learning"],
+      "responses": [
+        "Need academic assistance? Our qualified tutors offer personalized learning sessions to help you excel in your studies."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "event_planning",
+      "patterns": ["planning", "event", "organizer"],
+      "responses": [
+        "Planning an event? Let our experienced event organizers handle the details. From weddings to parties, we'll make it memorable."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "fitness",
+      "patterns": ["fitness", "trainer", "exercise"],
+      "responses": [
+        "Get fit with our certified fitness trainers. Whether you're a beginner or an athlete, we'll design a workout plan tailored to your needs."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "appliance_repair",
+      "patterns": ["repair", "appliances", "technician"],
+      "responses": [
+        "Appliance acting up? Our skilled technicians can repair any household appliance. Schedule a service for quick fixes."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "legal_consultation",
+      "patterns": ["consultation", "legal", "advice"],
+      "responses": [
+        "Need legal advice or consultation? Our experienced lawyers are here to assist you with any legal matters. Book a consultation now."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "medical",
+      "patterns": ["health", "doctor", "medical"],
+      "responses": [
+        "Take care of your health with our qualified doctors and medical professionals. Schedule a check-up or consultation today."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "greeting",
+      "patterns": ["hi", "hello", "hey"],
+      "responses": ["Hello! How can I assist you today?"],
+      "context": [""]
+    },
+    {
+      "tag": "how_are_you",
+      "patterns": ["how are you", "what's up", "how's it going"],
+      "responses": ["I'm doing well, thank you! How about you?"],
+      "context": [""]
+    },
+    {
+      "tag": "thank_you",
+      "patterns": ["thank you", "thanks"],
+      "responses": ["You're welcome! If you need any further assistance, feel free to ask."],
+      "context": [""]
+    },
+    {
+      "tag": "farewell",
+      "patterns": ["bye", "goodbye", "see you later"],
+      "responses": ["Goodbye! Have a great day!"],
+      "context": [""]
+    },
+    {
+      "tag": "help",
+      "patterns": ["help", "support", "assistance"],
+      "responses": ["I'm here to help! What do you need assistance with?"],
+      "context": [""]
+    },
+    {
+      "tag": "uncertain",
+      "patterns": ["not sure", "uncertain", "unknown"],
+      "responses": [
+        "I'm still in prototype phase. Please contact customer support for assistance."
+      ],
+      "context": [""]
+    }
+  ]
+}

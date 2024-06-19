@@ -4,12 +4,12 @@ import { serviceManController } from '../../controller';
 
 class ServiceManController {
   private router: Router;
-  constructor () {
+  constructor() {
     this.router = express.Router();
     this.initializeRoutes();
   }
 
-  private initializeRoutes (): void {
+  private initializeRoutes(): void {
     this.router.post('/login', serviceManController.handleLogin);
     this.router.post('/signup', serviceManController.handleSignup);
 
@@ -21,7 +21,7 @@ class ServiceManController {
     this.router.get('/confirm/booking', serviceManController.handleConfirmBooking);
   }
 
-  public getRouter (): Router {
+  public getRouter(): Router {
     return this.router;
   }
 }
