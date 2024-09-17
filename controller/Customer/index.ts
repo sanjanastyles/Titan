@@ -1,10 +1,35 @@
 import { Request, Response } from 'express';
-import { ONLINEUSER_MODEL, REVIEW_MODEL, SERVICEMAN_SIGNUP_MODEL } from '../../model';
+import mongoose from 'mongoose';
+import {
+  ONLINEUSER_MODEL,
+  REVIEW_MODEL,
+  SERVICEMAN_SIGNUP_MODEL,
+} from '../../model';
 
-export const handleReviewPost = async (req: Request, res: Response) => {
+// Helper function to send success responses
+const sendSuccessResponse = (res: Response, code: number, message: string, data: any = {}) => {
+  res.status(code).json({ code, message, data });
+};
+
+// Helper function to send error responses
+const sendErrorResponse = (res: Response, code: number, message: string, error?: any) => {
+  res.status(code).json({ code, message, error });
+};
+
+// Custom function to find all online service men
+const findAllOnlineServiceMen = async () => {
+  return ONLINEUSER_MODEL.find({ isServiceMan: true });
+};
+
+// Custom function to find service men by their IDs
+const findServiceMenByIds = async (ids: mongoose.Types.ObjectId[]) => {
+  return SERVICEMAN_SIGNUP_MODEL.find({ _id: { $in: ids } });
+};
+
+// Handle Posting Reviews
+export const handleReviewPost = async (req: Request, res: Response): Promise<void> => {
+  const { quality, feedback, recommend, reviewerId, associatedServiceman, associatedJob } = req.body;
   try {
-    const { quality, feedback, recommend, reviewerId, associatedServiceman, associatedJob } =
-      req.body;
     const newReview = new REVIEW_MODEL({
       quality,
       feedback,
@@ -14,29 +39,25 @@ export const handleReviewPost = async (req: Request, res: Response) => {
       associatedJob,
     });
     await newReview.save();
-    res.status(200).json({ code: 201, msg: 'Created Successfully' });
+    sendSuccessResponse(res, 201, 'Created Successfully');
   } catch (err) {
-    res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    sendErrorResponse(res, 500, 'Internal Server Error', err.message);
   }
 };
-export const getAllOnlineServiceMan = async (req: Request, res: Response) => {
-  const data = [];
+
+// Get All Online Service Men
+export const getAllOnlineServiceMan = async (req: Request, res: Response): Promise<void> => {
   try {
-    const users = await ONLINEUSER_MODEL.find({ isServiceMan: true });
-    if (users.length > 0) {
-      const userIds = users.map((user) => user.userId);
-      const serviceManInfo = await SERVICEMAN_SIGNUP_MODEL.find({ _id: { $in: userIds } });
-      users.forEach((user) => {
-        const serviceManData = serviceManInfo.find(
-          (info) => info._id.toString() === user.userId.toString(),
-        );
-        serviceManData && data.push(serviceManData);
-      });
-      return res.status(200).json({ code: 200, message: 'Success', data: data });
-    } else {
-      return res.status(404).json({ code: 404, error: 'No service men found', data: [] });
+    const onlineUsers = await findAllOnlineServiceMen();
+    if (onlineUsers.length === 0) {
+      return sendErrorResponse(res, 404, 'No service men found');
     }
+
+    const userIds = onlineUsers.map(user => user.userId);
+    const serviceMenInfo = await findServiceMenByIds(userIds);
+
+    sendSuccessResponse(res, 200, 'Success', serviceMenInfo);
   } catch (err) {
-    res.status(500).json({ error: err.message, data: [] });
+    sendErrorResponse(res, 500, 'Internal Server Error', err.message);
   }
 };
