@@ -1,4 +1,6 @@
+
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import {
   HISTROY_MODEL,
   SERVICEMAN_SIGNUP_MODEL,
@@ -9,6 +11,17 @@ import {
 } from '../../model';
 import { createToken } from '../../utils/utils';
 
+// Helper function to send success responses
+const sendSuccessResponse = (res: Response, code: number, message: string, data: any = {}) => {
+  res.status(code).json({ code, message, data });
+};
+
+// Helper function to send error responses
+const sendErrorResponse = (res: Response, code: number, message: string, error?: any) => {
+  res.status(code).json({ code, message, error });
+};
+
+// Confirm Booking
 export const handleConfirmBooking = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.query;
@@ -21,17 +34,17 @@ export const handleConfirmBooking = async (req: Request, res: Response): Promise
           isActive: true,
         },
       },
-      { new: true },
+      { new: true }
     );
-    if (booking) {
-      res.status(200).json({ code: 200, msg: 'Found successfully', data: booking });
-    } else {
-      res.status(412).json({ code: 412, msg: 'Not found', data: [] });
-    }
+    booking
+      ? sendSuccessResponse(res, 200, 'Booking confirmed successfully', booking)
+      : sendErrorResponse(res, 412, 'Booking not found');
   } catch (err) {
-    res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    sendErrorResponse(res, 500, 'Internal Server Error', err.message);
   }
 };
+
+// Cancel Booking
 export const handleCancelBooking = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.query;
@@ -44,31 +57,30 @@ export const handleCancelBooking = async (req: Request, res: Response): Promise<
           isActive: false,
         },
       },
-      { new: true },
+      { new: true }
     );
-    if (booking) {
-      res.status(200).json({ code: 200, msg: 'Found successfully', data: booking });
-    } else {
-      res.status(404).json({ code: 404, msg: 'Not found', data: [] });
-    }
+    booking
+      ? sendSuccessResponse(res, 200, 'Booking canceled successfully', booking)
+      : sendErrorResponse(res, 404, 'Booking not found');
   } catch (err) {
-    res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
-  }
-};
-export const handleServiceManService = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.query;
-    const servicman = await SERVICEMAN_SIGNUP_MODEL.findById(id);
-    if (servicman) {
-      res.status(200).json({ code: 200, msg: 'Found successfully', data: servicman });
-    } else {
-      res.status(404).json({ code: 404, msg: 'Not found', data: [] });
-    }
-  } catch (err) {
-    res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    sendErrorResponse(res, 500, 'Internal Server Error', err.message);
   }
 };
 
+// Get Service Man Details
+export const handleServiceManService = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.query;
+    const serviceman = await SERVICEMAN_SIGNUP_MODEL.findById(id);
+    serviceman
+      ? sendSuccessResponse(res, 200, 'Service man found successfully', serviceman)
+      : sendErrorResponse(res, 404, 'Service man not found');
+  } catch (err) {
+    sendErrorResponse(res, 500, 'Internal Server Error', err.message);
+  }
+};
+
+// Login Handler
 export const handleLogin = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
@@ -76,40 +88,34 @@ export const handleLogin = async (req: Request, res: Response): Promise<void> =>
     const user = await SERVICEMAN_SIGNUP_MODEL.findOne({ email });
 
     if (user && user.password === password) {
-      // const alreadyloggedin = await ONLINEUSER_MODEL.findOne({ userId: user._id });
-      // if (!alreadyloggedin) {
-      //   await new ONLINEUSER_MODEL({
-      //     userId: user._id,
-      //     isServiceMan: user.isServiceman,
-      //   }).save();
-      // }
       const data = { ...user['_doc'], type: 'user' };
-
-      res.status(200).json({ code: 200, msg: 'Success', data });
+      sendSuccessResponse(res, 200, 'Login successful', data);
       return;
     }
 
     if (admin && admin.password === password) {
       const data = { ...admin['_doc'], type: 'admin' };
-      console.log(data, '_');
-
-      res.status(200).json({ code: 200, msg: 'Success', data });
+      sendSuccessResponse(res, 200, 'Login successful', data);
       return;
     }
-    res.status(401).json({ code: 401, msg: 'Invalid credentials', data: {} });
+
+    sendErrorResponse(res, 401, 'Invalid credentials');
   } catch (err) {
-    res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    sendErrorResponse(res, 500, 'Internal Server Error', err.message);
   }
 };
 
+// Signup Handler
 export const handleSignup = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, phone, email, address, password, selectedServices, isProfessional } = req.body;
     const existingUser = await SERVICEMAN_SIGNUP_MODEL.findOne({ email });
+
     if (existingUser) {
-      res.status(409).json({ code: 409, msg: 'Email already registered', data: {} });
+      sendErrorResponse(res, 409, 'Email already registered');
       return;
     }
+
     const token = createToken(password + name);
     const newServiceMan = new SERVICEMAN_SIGNUP_MODEL({
       name,
@@ -125,112 +131,59 @@ export const handleSignup = async (req: Request, res: Response): Promise<void> =
     });
     await newServiceMan.save();
 
-    newServiceMan.jobs.forEach(async ({ name }) => {
-      await SERVICE_MODEL.findOneAndUpdate(
-        { serviceName: name.toLowerCase() },
-        { $push: { associatedServiceman: newServiceMan._id } },
-        { new: true },
-      );
-    });
-    res.status(201).json({
-      code: 201,
-      msg: 'Created Successfully',
+    await Promise.all(
+      newServiceMan.jobs.map(({ name }) =>
+        SERVICE_MODEL.findOneAndUpdate(
+          { serviceName: name.toLowerCase() },
+          { $push: { associatedServiceman: newServiceMan._id } },
+          { new: true }
+        )
+      )
+    );
+
+    sendSuccessResponse(res, 201, 'Service man created successfully', {
       token,
       _id: newServiceMan._id,
       isServiceman: newServiceMan.isServiceman,
     });
   } catch (err) {
-    res.status(500).json({ msg: 'Internal Server Error', code: 500, error: err.message });
+    sendErrorResponse(res, 500, 'Internal Server Error', err.message);
   }
 };
+
+// Profile Handler
 export const handleProfile = (req: Request, res: Response): void => {
   res.send({ KEY: 'profile', TOKEN: 'token' });
 };
+
+// Profile Post Handler
 export const handleProfilePost = (req: Request, res: Response): void => {
   res.send({ KEY: 'profile_post', TOKEN: 'token' });
 };
-export const handleSeeReviews = async (req: Request, res: Response) => {
-  // try {
-  //   const { id } = req.body;
-  //   const pipeline: any[] = [
-  //     {
-  //       $lookup: {
-  //         from: 'servicemen',
-  //         localField: 'reviewerId',
-  //         foreignField: '_id',
-  //         as: 'user',
-  //       },
-  //     },
-  //     { $unwind: '$user' },
-  //     { $addFields: { 'user.id': '$_id' } },
-  //     {
-  //       $project: {
-  //         _id: 0,
-  //         id: '$user.id',
-  //         name: '$user.name',
-  //         review: '$$ROOT',
-  //       },
-  //     },
-  //   ];
-  //   pipeline.push({
-  //     $lookup: {
-  //       from: 'services',
-  //       localField: 'review.associatedJob',
-  //       foreignField: '_id',
-  //       as: 'booking',
-  //     },
-  //   });
-  //   pipeline.push({ $unwind: '$service' });
-  //   pipeline.push({
-  //     $addFields: { 'service.id': '$review.associatedJob' },
-  //   });
-  //   pipeline.push({ $project: { 'review.associatedJob': 0 } });
 
-  //   const response = await REVIEW_MODEL.aggregate(pipeline);
-  //   res.status(200).json({
-  //     code: 200,
-  //     msg: 'Fetched Successfully',
-  //     data: response,
-  //   });
-  // }
-
+// See Reviews Handler
+export const handleSeeReviews = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.query;
-
-    // Find documents matching the reviewerId
     const reviews = await REVIEW_MODEL.find({ reviewerId: id });
 
-    // Iterate over each review to perform additional actions
     const processedReviews = await Promise.all(
       reviews.map(async (review) => {
-        // Find the corresponding serviceman
         const serviceman = await SERVICEMAN_SIGNUP_MODEL.findById(review.reviewerId);
-
-        // Find the associated service
         const booking = await HISTROY_MODEL.findById(review.associatedJob);
 
-        // Construct the processed review object
-        const processedReview = {
-          id: serviceman._id, // Assuming serviceman._id is the user ID
+        return {
+          id: serviceman._id,
           name: serviceman.name,
-          review: review,
-          booking: booking,
+          review,
+          booking,
         };
-
-        return processedReview;
-      }),
+      })
     );
 
-    res.status(200).json({
-      code: 200,
-      msg: 'Fetched Successfully',
-      data: processedReviews,
-    });
+    sendSuccessResponse(res, 200, 'Reviews fetched successfully', processedReviews);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      code: 500,
-      msg: 'Internal Server Error',
-    });
+    sendErrorResponse(res, 500, 'Internal Server Error');
   }
 };
