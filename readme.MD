@@ -1,5 +1,5 @@
 ## Todo
-
+- Convert whole codebase to go
 - Clean the Code
 - Encrypt Stuff(password and stuff)
 - secure endpoints
